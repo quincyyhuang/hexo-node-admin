@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+  <html>
+    <head>
+      <title>Hexo-node-admin</title>
+      <!--Import Google Icon Font-->
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <!--Import materialize.css-->
+      <link type="text/css" rel="stylesheet" href="static/css/materialize.min.css"  media="screen,projection"/>
+
+      <style>
+        .side-nav li.active {
+          background-color: #ee6e73;
+        }
+      </style>
+
+      <!--Let browser know website is optimized for mobile-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+
+    <body>
+          <!-- Navbar goes here -->
+          <!-- Page Layout here -->
+          <div class="container">
+                <div class="row">
+
+                    <div class="col s3">
+                        <!-- Grey navigation panel -->
+                        <div class="nav-wrapper">
+                          <ul class="side-nav fixed">
+                            <li><a href="/"><i class="material-icons">cloud</i>Hexo后台管理</a></li>
+                            <li><div class="divider"></div></li>
+                            <li><a class="subheader">管理</a></li>
+                            <li class="active"><a class="waves-effect white-text" href="/!">仪表盘</a></li>
+                            <li><a class="waves-effect" href="/!post">文章</a></li>
+                            <li><a class="waves-effect" href="/!page">页面</a></li>
+                            <li><a class="waves-effect" href="/!logout">登出</a></li>
+                            <li><div class="divider"></div></li>
+                            <li><a class="subheader">其它</a></li>
+                            <li><a class="waves-effect" href="#!">统计</a></li>
+                            <li><a class="waves-effect" href="#!">关于</a></li>
+                          </ul>
+                        </div>
+                    </div>
+
+                    <div class="col s9">
+                        <!-- Teal page content  -->
+                    </div>
+
+                </div>
+          </div>
+
+      <!--Import jQuery before materialize.js-->
+      <script type="text/javascript" src="static/js/jquery-3.2.1.min.js"></script>
+      <script type="text/javascript" src="static/js/materialize.min.js"></script>
+    </body>
+  </html>

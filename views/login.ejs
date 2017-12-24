@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+  <html>
+    <head>
+      <title>Hexo-node-admin</title>
+      <!--Import Google Icon Font-->
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <!--Import materialize.css-->
+      <link type="text/css" rel="stylesheet" href="static/css/materialize.min.css"  media="screen,projection"/>
+
+      <!--Let browser know website is optimized for mobile-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+
+    <body>
+    <div class="container">
+    <form method="post" action="/!login">
+      <div class="row" style="margin-top: 10%">
+        <div class="col s6 offset-s3">
+          <div class="card hoverable">
+            <div class="card-content">
+              <span class="card-title">Hexo管理后台</span>
+              <div class="row">
+                <div class="input-field col s12">
+                <i class="material-icons prefix">account_box</i>
+                <input id="username" type="text" name="username" class="">
+                <label for="username">用户名</label>
+                </div>
+              </div>
+              <div class="row">
+                <div class="input-field col s12">
+                <i class="material-icons prefix">build</i>
+                <input id="password" type="password" name="password" class="">
+                <label for="password">密码</label>
+                </div>
+              </div>
+              <button class="btn waves-effect waves-light red lighten-2" type="submit" name="action">登陆
+                <i class="material-icons right">send</i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </form>
+      </div>
+      <!--Import jQuery before materialize.js-->
+      <script type="text/javascript" src="static/js/jquery-3.2.1.min.js"></script>
+      <script type="text/javascript" src="static/js/materialize.min.js"></script>
+    </body>
+  </html>
