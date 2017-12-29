@@ -1,22 +1,13 @@
 // Dependencies
 const fs = require('fs')
 var express = require('express')
-
-// Read settings
-var config = JSON.parse(fs.readFileSync('./config.json'))
-const hexo_dir = config.dir || __dirname
+var functions = require('./functions')
 
 // Router
 var router = express.Router()
 
 // Routes
-router.get('/', (req, res) => {
-    if (req.session.loggedIn == true) {
-        res.redirect('/!')
-    } else {
-        res.render('login')
-    }
-})
+router.get('/', functions.index)
 
 router.get('/!', (req, res) => {
     res.render('dashboard')
@@ -30,19 +21,9 @@ router.get('/!page', (req, res) => {
     res.render('page')
 })
 
-router.get('/!logout', (req, res) => {
-    req.session.destroy()
-    res.redirect('/')
-})
+router.get('/!logout', functions.logout)
 
-router.post('/!login', (req, res) => {
-    if (req.body.username == config.admin.username && req.body.password == config.admin.password) {
-        req.session.loggedIn = true
-        res.redirect('/!')
-    } else {
-        res.redirect('/')
-    }
-})
+router.post('/!login', functions.login)
 
 // Export
 module.exports = router
