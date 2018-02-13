@@ -1,6 +1,6 @@
 {
     "port": 4001,
-    "dir": "",
+    "hexo-dir": "",
     "admin": {
         "username": "test",
         "password": "123"

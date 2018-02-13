@@ -1,10 +1,10 @@
 // Dependencies
 var express = require('express')
-var router = require("./router")
+var router = require("./modules/router")
 var bodyParser = require('body-parser')
 var session = require('express-session')
 var FileStore = require('session-file-store')(session)
-var loginMiddleware = require('./login-middleware')
+var loginMiddleware = require('./modules/login-middleware')
 const fs = require('fs')
 
 // Global Variables
@@ -13,7 +13,7 @@ var app = express()
 // Settings
 var config = JSON.parse(fs.readFileSync('./config.json'))
 app.set('port', (process.env.PORT || config.port || 4001))
-app.set('view engine', 'ejs')
+app.set('view engine', 'pug')
 app.use('/static', express.static(__dirname + '/static'))
 app.listen(app.get('port'), function() {
 	console.log('Node app is running on port', app.get('port'))
