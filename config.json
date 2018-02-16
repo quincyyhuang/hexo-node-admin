@@ -1,6 +1,6 @@
 {
     "port": 4001,
-    "hexo-dir": "",
+    "hexo_dir": "H:\\projects\\Hexo",
     "admin": {
         "username": "test",
         "password": "123"

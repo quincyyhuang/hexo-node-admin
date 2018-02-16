@@ -1,0 +1,111 @@
+nav.top-nav {
+    height: 110px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+nav.top-nav a.page-title {
+    line-height: 110px;
+    font-size: 48px;
+}
+
+ul.side-nav a.nav-logo {
+    font-size: 20px;
+}
+
+.fixed-announcement {
+    position: relative;
+    height: 60px;
+    width: 100%;
+    z-index: 999;
+}
+
+.fixed-announcement .announcement {
+    position: absolute;
+    height: inherit;
+    width: inherit;
+    background-color: #5c5757;
+}
+
+.fixed-announcement .announcement .container {
+    color: #fff;
+    padding: 12px 0;
+}
+
+ul.side-nav.fixed {
+    overflow: hidden;
+}
+
+.side-nav li.active {
+    background-color: #ee6e73;
+}
+
+.toolbar {
+    padding: 10px;
+    background-color: #5c5757;
+    border-radius: 5px;
+}
+
+.editor {
+    padding: 10px;
+    background-color: #5c5757;
+    border-radius: 5px;
+}
+
+.CodeMirror {
+	height: 80vh;
+}
+
+header, main, footer {
+    padding-left: 300px;
+}
+
+.caption {
+    font-size: 1.25rem;
+    font-weight: 300;
+    margin-bottom: 30px;
+}
+
+p {
+    color: rgba(0,0,0,0.71);
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+table {
+    font-size: 1.5rem;
+}
+
+ul li {
+    -webkit-font-smoothing: antialiased;
+}
+
+.header {
+    color: #ee6e73;
+    font-weight: 300;
+}
+
+a.btn-large {
+    color: #5c5757;
+    margin-right: 30px;
+    background-color: bisque;
+    font-size: 1.5em;
+}
+
+a.btn-large.rightest {
+    margin-right: 0;
+}
+
+a.btn-large:hover {
+    background-color: rgb(255, 221, 180);
+}
+
+a.modal-action#delete {
+    color: #ff2a31;
+}
+
+@media only screen and (min-width: 993px){
+    .container {
+        width: 85%;
+    }
+}
