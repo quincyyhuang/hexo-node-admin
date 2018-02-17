@@ -11,12 +11,17 @@ const fs = require('fs')
 var app = express()
 
 // Settings
-var config = JSON.parse(fs.readFileSync('./config.json'))
-app.set('port', (process.env.PORT || config.port || 4001))
+try {
+    var config = JSON.parse(fs.readFileSync('./config.json'))
+} catch (e) {
+    console.log('Bad config file.')
+    process.exit()
+}
+app.set('port', (config.port || 4001))
 app.set('view engine', 'pug')
 app.use('/static', express.static(__dirname + '/static'))
 app.listen(app.get('port'), function() {
-	console.log('Node app is running on port', app.get('port'))
+	console.log('Hexo admin is running on port', app.get('port'))
 })
 
 // Body parser

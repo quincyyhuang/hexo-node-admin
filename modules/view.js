@@ -2,6 +2,7 @@
 const util = require('util')
 const fs = require('fs')
 const path = require('path')
+const { exec, execFile } = require('child_process')
 
 // Promisify
 const readdir = util.promisify(fs.readdir)
@@ -11,7 +12,13 @@ const unlink = util.promisify(fs.unlink)
 const rmdir = require('rmdir')
 
 // Read settings
-var config = JSON.parse(fs.readFileSync('./config.json'))
+try {
+    var config = JSON.parse(fs.readFileSync('./config.json'))
+} catch (e) {
+    console.log('Bad config file.')
+    process.exit()
+}
+
 const hexoRoot = config.hexo_dir || __dirname
 
 // Hexo directory paths
@@ -181,14 +188,18 @@ async function newFile(req, res) {
             hexo.post.create({
                 title: req.body.title,
                 layout: 'page'
-            }, false)
+            }, false).then(() => {
+                return hexo.exit()
+            })
 
             hexo.on('new', (post) => {
                 return res.sendStatus(200)
             })
+
         }).catch((err) => {
             console.log(err)
-            return res.sendStatus(400)
+            res.sendStatus(400)
+            return hexo.exit(err)
         })
     }
     else {
@@ -268,19 +279,90 @@ async function generate(req, res) {
     })
 }
 
-async function deploy(req, res) {
+function deploy(req, res) {
+    switch (config.deploy.type) {
+        case 'default': {
+            // --------Not using hexo.call function because it doesn't throw error.
+            // var Hexo = require('hexo')
+            // var hexo = new Hexo(hexoRoot, {
+            //     silent: true
+            // })
+            // hexo.init().then(() => {
+            //     hexo.call('deploy', {}).then(() => {
+                    
+            //         return hexo.exit()
+            //     }).catch((err) => {
+            //         console.log(err)
+            //         return res.sendStatus(500)
+            //     })
+            // })
 
+            // Using exec command
+            var command = 'hexo deploy'
+            var options = {
+                cwd: "H:\\projects\\Hexo"
+            }
+            var cb = (error, stdout, stderr) => {
+                var rt = { error, stdout, stderr }
+                return res.json(rt)
+            }
+            exec(command, options, cb)
+
+            break
+        }
+        case 'script': {
+            var script = config.deploy.script
+            if (!script) return res.json({ error: '脚本不能为空' })
+            if (path.isAbsolute(script)) {
+                // Is file
+                if (process.platform == 'win32' && (path.extname(script) != '.cmd' || path.extname(script) != '.bat')) return res.json({ error: '在 Windows 平台上脚本后缀名应为 .cmd 或者 .bat' })
+                var options = {
+                    cwd: config.hexo_dir
+                }
+                var cb = (error, stdout, stderr) => {
+                    var rt = { error, stdout, stderr }
+                    return res.json(rt)
+                }
+                execFile(script, [], options, cb)
+            }
+            else {
+                // Is command
+                var command = script
+                var options = {
+                    cwd: config.hexo_dir
+                }
+                var cb = (error, stdout, stderr) => {
+                    var rt = { error, stdout, stderr }
+                    return res.json(rt)
+                }
+                exec(command, options, cb)
+            }
+            
+            break
+        }
+        default: {
+            return res.json({
+                error: '错误的部署设置'
+            })
+        }
+    }
 }
 
 async function clean(req, res) {
     if (req.body.clean != undefined) {
         if (req.body.clean === true) {
-            rmdir(path.join(hexoRoot, 'public'), (err) => {
-                if (err) {
-                    console.log(err)
-                    return res.sendStatus(400)
-                }
-                else return res.sendStatus(200)
+            var Hexo = require('hexo')
+            var hexo = new Hexo(hexoRoot, {
+                silent: true
+            })
+            hexo.init().then(() => {
+                hexo.call('clean').then(() => {
+                    res.sendStatus(200)
+                    return hexo.exit()
+                }).catch((err) => {
+                    res.sendStatus(500)
+                    return hexo.exit(err)
+                })
             })
         }
     }

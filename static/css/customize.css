@@ -104,6 +104,22 @@ a.modal-action#delete {
     color: #ff2a31;
 }
 
+.console {
+    background-color: rgb(245, 245, 245);
+}
+
+.console p.error {
+    color: #ee6e73;
+}
+
+.console p.stdout {
+    color: #5c5757;
+}
+
+.console p.stderr {
+    color: #ee6e73;
+}
+
 @media only screen and (min-width: 993px){
     .container {
         width: 85%;

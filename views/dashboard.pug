@@ -81,7 +81,7 @@ html
 							a.waves-effect.waves-light.btn-large#generate
 								i.material-icons.left build
 								| 生成
-							a.waves-effect.waves-light.btn-large(href="/!hexo-p")
+							a.waves-effect.waves-light.btn-large#deploy
 								i.material-icons.left cloud_circle
 								| 部署
 							a.waves-effect.waves-light.btn-large.modal-trigger(href="#hexoClean")
@@ -99,10 +99,22 @@ html
 									h4 生成中···
 									.progress
 										.indeterminate
+							.modal#hexoDeploy
+								.modal-content
+									h4 部署中···
+									.progress
+										.indeterminate
+									.console#deployConsole
 		script(src="/static/js/jquery-3.2.1.min.js", type="text/javascript")
 		script(src="/static/js/materialize.min.js", type="text/javascript")
 		script.
 			$('.modal').modal()
+			$('#hexoGenerate').modal({
+				dismissible: false
+			})
+			$('#hexoDeploy').modal({
+				dismissible: false
+			})
 			var post = function() {
 				var payload = {
 					type: 'post',
@@ -197,8 +209,42 @@ html
 					}
 					else {
 						var $toastContent = $('<span style="color: red;"><b>生成失败！</b></span>').add($('<i class="material-icons right">clear</i>'))
+						$("#hexoGenerate").modal('close')
 						Materialize.toast($toastContent, 3000)
 					}
+				})
+			}
+
+			var deploy = function() {
+				$("#hexoDeploy").modal('open')
+				$("#hexoDeploy .modal-content h4").text('部署中···')
+				$("#hexoDeploy .modal-content .progress").html('<div class="indeterminate"></div>')
+				$("#hexoDeploy .modal-content #deployConsole").html('')
+				$("#hexoDeploy .modal-footer").remove()
+				fetch('/!deploy', {
+					method: 'GET',
+					credentials: 'include'
+				})
+				.then(response => response.json())
+				.then((data) => {
+					if (data.error || data.stderr) {
+						$("#hexoDeploy .modal-content h4").text('部署执行错误')
+						$("#hexoDeploy .modal-content .progress").html('<div class="determinate" style="width: 100%"></div>')
+						if (data.error) $("#deployConsole").html('<p class="error">' + data.error + '</p>')
+						if (data.stdout) $("#deployConsole").html('<p class="stdout">' + data.stdout + '</p>')
+						if (data.stderr) $("#deployConsole").html('<p class="stderr">' + data.stderr + '</p>')
+						$("#hexoDeploy").append('<div class="modal-footer"><a class="modal-action modal-close waves-effect waves-green btn-flat">关闭</a></div>')
+					} else {
+						$("#hexoDeploy .modal-content h4").text('部署执行成功')
+						$("#hexoDeploy .modal-content .progress").html('<div class="determinate" style="width: 100%"></div>')
+						if (data.stdout) $("#deployConsole").html('<p class="stdout">' + data.stdout + '</p>')
+						$("#hexoDeploy").append('<div class="modal-footer"><a class="modal-action modal-close waves-effect waves-green btn-flat">关闭</a></div>')
+					}
+				})
+				.catch((err) => {
+					var $toastContent = $('<span style="color: red;"><b>部署结果解析失败！</b></span>').add($('<i class="material-icons right">clear</i>'))
+					$("#hexoDeploy").modal('close')
+					Materialize.toast($toastContent, 3000)
 				})
 			}
 
@@ -207,3 +253,4 @@ html
 			$("#pageButton").click(page)
 			$("#delete").click(clean)
 			$("#generate").click(generate)
+			$("#deploy").click(deploy)

@@ -1,6 +1,10 @@
 {
     "port": 4001,
     "hexo_dir": "H:\\projects\\Hexo",
+    "deploy": {
+        "type": "default",
+        "script": ""
+    },
     "admin": {
         "username": "test",
         "password": "123"
