@@ -4,6 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const yaml = require('js-yaml')
 var formidable = require('formidable')
+var bcrypt = require('bcryptjs')
 const { exec, execFile } = require('child_process')
 
 // Promisify
@@ -46,12 +47,23 @@ function index(req, res) {
     }
 }
 
-function login(req, res) {
-    if (req.body.username == config.admin.username && req.body.password == config.admin.password) {
-        req.session.loggedIn = true
-        res.redirect('/!')
-    } else {
-        res.redirect('/')
+async function login(req, res) {
+    if (config.admin.plain == true) {
+        if (req.body.username == config.admin.username && req.body.password == config.admin.password) {
+            req.session.loggedIn = true
+            res.redirect('/!')
+        } else {
+            res.redirect('/')
+        }
+    }
+    else {
+        if (req.body.username != config.admin.username) return res.redirect('/')
+        var result = await bcrypt.compare(req.body.password, config.admin.password)
+        if (!result) return res.redirect('/')
+        else {
+            req.session.loggedIn = true
+            res.redirect('/!')
+        }
     }
 }
 
@@ -469,6 +481,14 @@ async function upload(req, res) {
     }
 }
 
+async function stats(req, res) {
+    return res.send('stats')
+}
+
+async function about(req, res) {
+    return res.render('about')
+}
+
 // Exports
 exports.index = index
 exports.login = login
@@ -485,3 +505,5 @@ exports.generate = generate
 exports.deploy = deploy
 exports.clean = clean
 exports.upload = upload
+exports.stats = stats
+exports.about = about

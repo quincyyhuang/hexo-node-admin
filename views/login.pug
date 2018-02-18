@@ -28,5 +28,24 @@ html
 										label(for="password") 密码
 								button.btn.waves-effect.waves-light.red.lighten-2(type="submit", name="action") 登陆
 									i.material-icons.right send
+								a.btn.waves-effect.waves-light.red.lighten-2.right.modal-trigger(href="#passwordWindow") 密码加密
+									i.material-icons.left lock
+		.modal#passwordWindow
+			.modal-content
+				h4 密码加密器
+				p 使用 bcrypt 加密明文密码
+				input(type="text", id="passwordToConvert", placeholder="明文密码")
+				input(type="text", id="passwordConverted", placeholder="加密密码", readonly=true)
 		script(src="/static/js/jquery-3.2.1.min.js", type="text/javascript")
 		script(src="/static/js/materialize.min.js", type="text/javascript")
+		script(src="/static/js/bcrypt.js", type="text/javascript")
+		script.
+			$(".modal").modal()
+			var bcrypt = dcodeIO.bcrypt
+			var showConverted = function() {
+				var plain = $("#passwordToConvert").val()
+				var hash = bcrypt.hashSync(plain, 8)
+				$("#passwordConverted").val(hash)
+			}
+
+			$("#passwordToConvert").change(showConverted)

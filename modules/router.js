@@ -24,6 +24,10 @@ router.get('/!generate', view.generate)
 
 router.get('/!deploy', view.deploy)
 
+router.get('/!stats', view.stats)
+
+router.get('/!about', view.about)
+
 router.post('/!new', view.newFile)
 
 router.post('/!save', view.save)
