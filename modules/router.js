@@ -35,5 +35,7 @@ router.post('/!login', view.login)
 
 router.post('/!clean', view.clean)
 
+router.post('/!upload', view.upload)
+
 // Export
 module.exports = router

@@ -2,6 +2,7 @@
 const util = require('util')
 const fs = require('fs')
 const path = require('path')
+const yaml = require('js-yaml')
 const { exec, execFile } = require('child_process')
 
 // Promisify
@@ -14,6 +15,7 @@ const rmdir = require('rmdir')
 // Read settings
 try {
     var config = JSON.parse(fs.readFileSync('./config.json'))
+    
 } catch (e) {
     console.log('Bad config file.')
     process.exit()
@@ -21,9 +23,16 @@ try {
 
 const hexoRoot = config.hexo_dir || __dirname
 
+try {
+    var config_yml = yaml.safeLoad(fs.readFileSync(path.join(hexoRoot, '_config.yml'), 'utf8'))
+} catch (e) {
+    console.log('Bad hexo config.yml file.')
+    process.exit()
+}
+
 // Hexo directory paths
-const hexoPostDir = path.join(hexoRoot, 'source', '_posts')
-const hexoPageDir = path.join(hexoRoot, 'source')
+const hexoPostDir = path.join(hexoRoot, config_yml.source_dir, '_posts')
+const hexoPageDir = path.join(hexoRoot, config_yml.source_dir)
 
 // Functions
 function index(req, res) {
@@ -125,11 +134,25 @@ async function showPost(req, res) {
                 content: fileContent
             })
         }
+        else if (req.query.a == 'getAssets' && config_yml.post_asset_folder == true) {
+            // editor get assets
+            try {
+                var folder = path.join(hexoPostDir, fileName.replace(path.extname(fileName), ''))
+                var assets = await readdir(folder)
+            } catch (e) {
+                console.log(e)
+                return res.sendStatus(500)
+            }
+            return res.json({
+                assets
+            })
+        }
         else {
             // Show editor
             return res.render('editor', {
                 fileName: fileName,
-                type: 'post'
+                type: 'post',
+                post_asset_folder: config_yml.post_asset_folder
             })
         }
     }
@@ -153,6 +176,19 @@ async function showPage(req, res) {
                 content: fileContent
             })
         }
+        else if (req.query.a == 'getAssets' && config_yml.post_asset_folder == true) {
+            // editor get assets
+            try {
+                var folder = path.join(hexoPageDir, fileName, 'index')
+                var assets = await readdir(folder)
+            } catch (e) {
+                console.log(e)
+                return res.sendStatus(500)
+            }
+            return res.json({
+                assets
+            })
+        }
         else {
             // Show editor
             return res.render('editor', {
@@ -173,7 +209,9 @@ async function newFile(req, res) {
             hexo.post.create({
                 title: req.body.title,
                 layout: 'post'
-            }, false)
+            }, false).then(() => {
+                return hexo.exit()
+            })
 
             hexo.on('new', (post) => {
                 return res.sendStatus(200)
@@ -240,6 +278,9 @@ async function deleteFn(req, res){
     if (type == 'post') {
         try {
             await unlink(path.join(hexoPostDir, fileName))
+            if (config_yml.post_asset_folder == true) {
+                await rmdir(path.join(hexoPostDir, fileName.replace(path.extname(fileName), '')))
+            }
         } catch (e) {
             console.log(e)
             return res.sendStatus(400)
@@ -279,7 +320,7 @@ async function generate(req, res) {
     })
 }
 
-function deploy(req, res) {
+async function deploy(req, res) {
     switch (config.deploy.type) {
         case 'default': {
             // --------Not using hexo.call function because it doesn't throw error.
@@ -368,6 +409,15 @@ async function clean(req, res) {
     }
 }
 
+async function upload(req, res) {
+    if (config_yml.post_asset_folder == true) {
+        
+    }
+    else {
+        return res.sendStatus(400)
+    }
+}
+
 // Exports
 exports.index = index
 exports.login = login
@@ -383,3 +433,4 @@ exports.deleteFn = deleteFn
 exports.generate = generate
 exports.deploy = deploy
 exports.clean = clean
+exports.upload = upload

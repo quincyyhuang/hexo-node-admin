@@ -1,15 +1,15 @@
-const { execFile  } = require('child_process')
+var Hexo = require('hexo')
+const path = require('path')
 
-console.log(process.platform)
+const hexoRoot = "H:\\projects\\Hexo"
 
-var file = 'H:\\projects\\Hexo\\deploy.sh'
-var options = {
-    cwd: "H:\\projects\\Hexo"
-}
-var cb = (error, stdout, stderr) => {
-    console.log('error = ', error)
-    console.log('stdout = ', stdout)
-    console.log('stderr = ', stderr)
-}
+var hexo = new Hexo(hexoRoot, {})
 
-execFile(file, [], options, cb)
+hexo.init().then(() => {
+    hexo.post.create({
+        title: 'Hi',
+        layout: 'post'
+    }, false).then(() => {
+        return hexo.exit()
+    })
+})

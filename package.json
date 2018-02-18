@@ -22,6 +22,7 @@
     "express": "^4.16.2",
     "express-session": "^1.15.6",
     "hexo": "^3.5.0",
+    "js-yaml": "^3.10.0",
     "pug": "^2.0.0-rc.4",
     "rmdir": "^1.2.0",
     "session-file-store": "^1.2.0"
