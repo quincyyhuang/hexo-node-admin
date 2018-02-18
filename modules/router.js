@@ -1,5 +1,4 @@
 // Dependencies
-const fs = require('fs')
 var express = require('express')
 var view = require('./view')
 

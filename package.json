@@ -21,6 +21,7 @@
     "ejs": "^2.5.7",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
+    "formidable": "^1.1.1",
     "hexo": "^3.5.0",
     "js-yaml": "^3.10.0",
     "pug": "^2.0.0-rc.4",

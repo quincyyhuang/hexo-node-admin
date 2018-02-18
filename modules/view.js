@@ -3,12 +3,15 @@ const util = require('util')
 const fs = require('fs')
 const path = require('path')
 const yaml = require('js-yaml')
+var formidable = require('formidable')
 const { exec, execFile } = require('child_process')
 
 // Promisify
 const readdir = util.promisify(fs.readdir)
 const readFile = util.promisify(fs.readFile)
 const writeFile = util.promisify(fs.writeFile)
+const mkdir = util.promisify(fs.mkdir)
+const rename = util.promisify(fs.rename)
 const unlink = util.promisify(fs.unlink)
 const rmdir = require('rmdir')
 
@@ -410,11 +413,40 @@ async function clean(req, res) {
 }
 
 async function upload(req, res) {
-    if (config_yml.post_asset_folder == true) {
-        
-    }
+    if (!(req.query.type && req.query.fileName) || !(config_yml.post_asset_folder == true)) return res.sendStatus(400)
     else {
-        return res.sendStatus(400)
+        var form = new formidable.IncomingForm()
+        form.keepExtensions = true
+        if (req.query.type == 'post') {
+            var folder = path.join(hexoPostDir, req.query.fileName.replace(path.extname(req.query.fileName), ''))
+            form.uploadDir = folder
+            try {
+                await mkdir(folder)
+            } catch (e) {
+                if (e.errno != -4075) return res.sendStatus(500)
+            }
+        }
+        else if (req.query.type == 'page') {
+            var folder = path.join(hexoPageDir, req.query.fileName, 'index')
+            form.uploadDir = folder
+            try {
+                await mkdir(folder)
+            } catch (e) {
+                if (e.errno != -4075) return res.sendStatus(500)
+            }
+        }
+        else return res.sendStatus(400)
+
+        form.parse(req, async (err, fields, files) => {
+            // console.log(files)
+            try {
+                await rename(files.file.path, path.join(path.dirname(files.file.path), files.file.name))
+            } catch (e) {
+                console.log(e)
+                return res.sendStatus(500)
+            }
+            return res.sendStatus(200)
+        })
     }
 }
 

@@ -57,7 +57,7 @@ html
 									i.material-icons.left delete
 									| 删除
 								if post_asset_folder
-									a.waves-effect.waves-light.btn-large#upload
+									a.waves-effect.waves-light.btn-large#showUpload
 										i.material-icons.left file_upload
 										| 上传
 									a.waves-effect.waves-light.btn-large#assets
@@ -76,13 +76,23 @@ html
 		.modal#uploadFile
 			.modal-content
 				h4 上传文件
-				a.waves-effect.waves-light.btn-large#selectFile
-					i.material-icons.left attach_file
-					| 选择文件
-				input(type="file", id="open", hidden=true)
+				h5 注意！上传同名文件会导致覆盖。
+				form(enctype="multipart/form-data", method="post", name="fileinfo", id="uploadForm")
+					a.waves-effect.waves-light.btn-large#selectFile
+						i.material-icons.left attach_file
+						| 选择文件
+					input(type="file", id="open", name="file", hidden=true)
+				p
 			.modal-footer
 				a.modal-action.modal-close.waves-effect.waves-red.btn-flat 取消
-				a.modal-action.modal-close.waves-effect.waves-green.btn-flat 上传
+				a.modal-action.modal-close.waves-effect.waves-green.btn-flat#upload 上传
+		.modal#uploading
+			.modal-content
+				h4 上传中···
+				.progress
+					.indeterminate
+			.modal-footer
+				a.modal-action.modal-close.waves-effect.waves-red.btn-flat#cancelUpload 取消
 		.modal#assetsBrowser
 			.modal-content
 				h4 资源文件夹
@@ -98,6 +108,9 @@ html
 		script(src="/static/js/simplemde.min.js", type="text/javascript")
 		script.
 			$('.modal').modal()
+			$("#uploading").modal({
+				dismissible: false
+			})
 			var simplemde = new SimpleMDE({
 				element: $(".editor")[0],
 				autofocus: true,
@@ -185,8 +198,42 @@ html
 				})
 			}
 
-			var upload = function() {
+			var showUpload = function() {
 				$("#uploadFile").modal('open')
+			}
+
+			var upload = function() {
+				$("#uploading").modal('open')
+				var formElement = document.getElementById("uploadForm")
+				var formData = new FormData(formElement)
+				$.ajax({
+					url: "/!upload?type=#{type}&fileName=#{fileName}",
+					type: "POST",
+					data: formData,
+					processData: false,
+					contentType: false,
+					xhrFields: {
+						withCredentials: true
+					},
+					success: () => {
+						$("#uploading").modal('close')
+						var $toastContent = $('<span><b>上传成功！</b></span>').add($('<i class="material-icons right">check</i>'))
+						Materialize.toast($toastContent, 1000)
+					},
+					error: () => {
+						$("#uploading").modal('close')
+						var $toastContent = $('<span style="color: red;"><b>上传失败！</b></span>').add($('<i class="material-icons right">clear</i>'))
+						Materialize.toast($toastContent, 1000)
+					},
+					complete: () => {
+						$("#open").val('')
+						$("#open").change()
+					}
+				})
+			}
+
+			var cancelUpload = function() {
+				// Cancel Upload
 			}
 
 			var assetsUrl = window.location.href + '&a=getAssets'
@@ -220,8 +267,13 @@ html
 			$("#cancel").click(cancel)
 			$("#save").click(save)
 			$("#delete").click(deleteFn)
+			$("#showUpload").click(showUpload)
 			$("#upload").click(upload)
+			$("#cancelUpload").click(cancelUpload)
 			$("#assets").click(assets)
 			$("#selectFile").click(() => {
 				$("#open").click()
+			})
+			$("#open").change(() => {
+				$("#uploadFile p").text($("#open").val())
 			})
