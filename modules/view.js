@@ -182,7 +182,7 @@ async function showPage(req, res) {
         else if (req.query.a == 'getAssets' && config_yml.post_asset_folder == true) {
             // editor get assets
             try {
-                var folder = path.join(hexoPageDir, fileName, 'index')
+                var folder = path.join(hexoPageDir, req.query.f, 'index')
                 var assets = await readdir(folder)
             } catch (e) {
                 console.log(e)
@@ -196,7 +196,8 @@ async function showPage(req, res) {
             // Show editor
             return res.render('editor', {
                 fileName: path.dirname(fileName),
-                type: 'page'
+                type: 'page',
+                post_asset_folder: config_yml.post_asset_folder
             })
         }
     }
@@ -298,6 +299,24 @@ async function deleteFn(req, res){
             return res.sendStatus(400)
         }
         return res.sendStatus(200)
+    }
+    else if (type == 'asset') {
+        if (!(req.body.originalFilename && req.body.originalType)) return res.sendStatus(400)
+        else {
+            if (req.body.originalType == 'post') {
+                var file = path.join(hexoPostDir, req.body.originalFilename.replace(path.extname(req.body.originalFilename), ''), req.body.fileName)
+            }
+            else if (req.body.originalType == 'page') {
+                var file = path.join(hexoPageDir, req.body.originalFilename, 'index', req.body.fileName)
+            }
+            else return res.sendStatus(400)
+            try {
+                await unlink(file)
+            } catch (e) {
+                return res.sendStatus(500)
+            }
+            return res.sendStatus(200)
+        }
     }
     else {
         return res.sendStatus(400)
@@ -438,7 +457,7 @@ async function upload(req, res) {
         else return res.sendStatus(400)
 
         form.parse(req, async (err, fields, files) => {
-            // console.log(files)
+            if (err) return res.sendStatus(500)
             try {
                 await rename(files.file.path, path.join(path.dirname(files.file.path), files.file.name))
             } catch (e) {
