@@ -1,7 +1,7 @@
 doctype html
 html
 	head
-		title Hexo 管理 关于
+		title Hexo 管理 统计
 		<!--Import Google Icon Font-->
 		link(rel="stylesheet", href="https://fonts.googleapis.com/icon?family=Material+Icons")
 		<!--Import materialize.css-->
@@ -14,7 +14,7 @@ html
 			nav.top-nav
 				.container
 					.nav-wrapper
-						a.page-title 关于
+						a.page-title 统计
 			ul.side-nav.fixed
 				li
 					a.nav-logo(href="/")
@@ -36,32 +36,27 @@ html
 					.divider
 				li
 					a.subheader 其它
-				li
-					a.waves-effect(href="/!stats") 统计
 				li.active
-					a.waves-effect.white-text(href="/!about") 关于
+					a.waves-effect.white-text(href="/!stats") 统计
+				li
+					a.waves-effect(href="/!about") 关于
 		main
 			.container
 				.row
 					.col.s12.m9.l10
 						.section
-							h2.header 简介
-							p.caption 这是一个 Hexo 博客系统的界面化管理工具，目的是为了让你更方便的创作和管理你的博客。
-						.section
-							h2.header 帮助
-							p.caption 详细的使用说明请移步 Github
+							h2.header 总览
+							p.caption 你共有 #{postCounts} 篇文章，#{pageCounts} 个页面。
+							h2.header 状态
+							p.caption 资源文件夹功能是否打开：
 								| 
-								a(href="https://g.aka.moe/quincyhuang/hexo-node-admin", target="_blank") 项目页面
-								| 。
-						.section
-							h2.header 作者
-							p.caption Quincy Huang &copy; 2018
-							p.caption
-								a(href="https://q.aka.moe", target="_blank") 个人主页
+								b #{post_asset_folder}
+							p.caption 部署方式：
 								| 
-								a(href="https://weibo.com/206733386", target="_blank") 微博
+								b #{deploy}
+							p.caption 主题：
 								| 
-								a(href="https://www.instagram.com/quincyyhuang/", target="_blank") Instagram
+								b #{theme}
 							
 		script(src="/static/js/jquery-3.2.1.min.js", type="text/javascript")
 		script(src="/static/js/materialize.min.js", type="text/javascript")

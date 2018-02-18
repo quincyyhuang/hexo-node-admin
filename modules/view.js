@@ -482,7 +482,29 @@ async function upload(req, res) {
 }
 
 async function stats(req, res) {
-    return res.send('stats')
+    try {
+        var postDirFiles = await readdir(hexoPostDir)
+        var pageDirFiles = await readdir(hexoPageDir)
+        var posts = []
+        for (var i = 0; i < postDirFiles.length; i++) {
+            if (postDirFiles[i].includes('md')) posts.push(postDirFiles[i])
+        }
+        var pages = []
+        for (var i = 0; i < pageDirFiles.length; i++) {
+            if (pageDirFiles[i] != '_posts' && pageDirFiles[i] != '_drafts') pages.push(pageDirFiles[i])
+        }
+    } catch (e) {
+        console.log(e)
+        res.sendStatus(500)
+    }
+
+    res.render('stats', {
+        postCounts: posts.length,
+        pageCounts: pages.length,
+        post_asset_folder: config_yml.post_asset_folder,
+        deploy: config.deploy.type,
+        theme: config_yml.theme
+    })
 }
 
 async function about(req, res) {
