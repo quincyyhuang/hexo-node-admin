@@ -93,7 +93,7 @@
     "about.section3.caption.a3": "Instagram",
     "editor.title": "Hexo Admin Editor",
     "editor.page-title": "Editor: Current File",
-    "editor.section1.toolbar.cancel": "Undo",
+    "editor.section1.toolbar.reload": "Reload",
     "editor.section1.toolbar.save": "Save",
     "editor.section1.toolbar.delete": "Delete",
     "editor.section1.toolbar.upload": "Upload",

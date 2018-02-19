@@ -93,7 +93,7 @@
     "about.section3.caption.a3": "Instagram",
     "editor.title": "Hexo 管理 编辑器",
     "editor.page-title": "编辑器：当前文件",
-    "editor.section1.toolbar.cancel": "撤消",
+    "editor.section1.toolbar.reload": "重载",
     "editor.section1.toolbar.save": "保存",
     "editor.section1.toolbar.delete": "删除",
     "editor.section1.toolbar.upload": "上传",

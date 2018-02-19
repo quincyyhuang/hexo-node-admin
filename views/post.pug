@@ -3,7 +3,7 @@ html
 	head
 		title #{i18n.__("post.title")}
 		<!--Import Google Icon Font-->
-		link(rel="stylesheet", href="https://fonts.googleapis.com/icon?family=Material+Icons")
+		link(rel="stylesheet", href="/static/css/icon.css")
 		<!--Import materialize.css-->
 		link(rel="stylesheet", href="/static/css/materialize.min.css", media="screen, projection")
 		link(rel="stylesheet", href="/static/css/customize.css")
@@ -14,7 +14,24 @@ html
 			nav.top-nav
 				.container
 					.nav-wrapper
-						a.page-title #{i18n.__("post.page-title")}
+						a.page-title.brand-logo.truncate #{i18n.__("post.page-title")}
+						ul.right.hide-on-large-only
+							li
+								a.dropdown-button(data-activates='nav-dropdown')
+									i.material-icons menu
+						ul.dropdown-content#nav-dropdown
+							li
+								a.waves-effect(href="/!") #{i18n.__("nav.dashboard")}
+							li.active
+								a.waves-effect.white-text(href="/!post") #{i18n.__("nav.posts")}
+							li
+								a.waves-effect(href="/!page") #{i18n.__("nav.pages")}
+							li
+								a.waves-effect(href="/!logout") #{i18n.__("nav.logout")}
+							li
+								a.waves-effect(href="/!stats") #{i18n.__("nav.stats")}
+							li
+								a.waves-effect(href="/!about") #{i18n.__("nav.about")}
 			ul.side-nav.fixed
 				li
 					a.nav-logo(href="/")
