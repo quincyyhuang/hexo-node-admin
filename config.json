@@ -9,5 +9,6 @@
         "username": "test",
         "password": "test",
         "plain": true
-    }
+    },
+    "lang": "zh_CN"
 }

@@ -1,7 +1,7 @@
 doctype html
 html
 	head
-		title Hexo 管理 页面
+		title #{i18n.__("page.title")}
 		<!--Import Google Icon Font-->
 		link(rel="stylesheet", href="https://fonts.googleapis.com/icon?family=Material+Icons")
 		<!--Import materialize.css-->
@@ -14,44 +14,44 @@ html
 			nav.top-nav
 				.container
 					.nav-wrapper
-						a.page-title 页面
+						a.page-title #{i18n.__("page.page-title")}
 			ul.side-nav.fixed
 				li
 					a.nav-logo(href="/")
 						i.material-icons local_cafe
-						| Hexo后台管理
+						| #{i18n.__("nav-logo")}
 				li
 					.divider
 				li
-					a.subheader 管理
+					a.subheader #{i18n.__("nav.subheader1")}
 				li
-					a.waves-effect(href="/!") 仪表盘
+					a.waves-effect(href="/!") #{i18n.__("nav.dashboard")}
 				li
-					a.waves-effect(href="/!post") 文章
+					a.waves-effect(href="/!post") #{i18n.__("nav.posts")}
 				li.active
-					a.waves-effect.white-text(href="/!page") 页面
+					a.waves-effect.white-text(href="/!page") #{i18n.__("nav.pages")}
 				li
-					a.waves-effect(href="/!logout") 登出
+					a.waves-effect(href="/!logout") #{i18n.__("nav.logout")}
 				li
 					.divider
 				li
-					a.subheader 其它
+					a.subheader #{i18n.__("nav.subheader2")}
 				li
-					a.waves-effect(href="/!stats") 统计
+					a.waves-effect(href="/!stats") #{i18n.__("nav.stats")}
 				li
-					a.waves-effect(href="/!about") 关于
+					a.waves-effect(href="/!about") #{i18n.__("nav.about")}
 		main
 			.container
 				.row
 					.col.s12.m9.l10
 						.section
-							p.caption 共有 #{pages.length} 个页面。
-							h2.header 浏览
+							p.caption #{i18n.__("page.section1.caption1")} #{pages.length} #{i18n.__("page.section1.caption2")}.
+							h2.header #{i18n.__("page.section1.header")}
 						.section
 							table.striped
 								thead
 									tr
-										th 文件
+										th #{i18n.__("page.section2.th")}
 								tbody
 									each file in pages
 										tr

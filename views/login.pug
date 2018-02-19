@@ -1,7 +1,7 @@
 doctype html
 html
 	head
-		title Hexo 管理 登陆
+		title #{i18n.__("login.title")}
 		<!--Import Google Icon Font-->
 		link(rel="stylesheet", href="https://fonts.googleapis.com/icon?family=Material+Icons")
 		<!--Import materialize.css-->
@@ -15,27 +15,27 @@ html
 					.col.s6.offset-s3
 						.card.hoverable
 							.card-content
-								span.card-title Hexo管理后台
+								span.card-title #{i18n.__("login.card-title")}
 								.row
 									.input-field.col.s12
 										i.material-icons.prefix account_box
 										input(id="username", type="text", name="username")
-										label(for="username") 用户名
+										label(for="username") #{i18n.__("login.label_username")}
 								.row
 									.input-field.col.s12
 										i.material-icons.prefix build
 										input(id="password", type="password", name="password")
-										label(for="password") 密码
-								button.btn.waves-effect.waves-light.red.lighten-2(type="submit", name="action") 登陆
+										label(for="password") #{i18n.__("login.label_password")}
+								button.btn.waves-effect.waves-light.red.lighten-2(type="submit", name="action") #{i18n.__("login.button_login")}
 									i.material-icons.right send
-								a.btn.waves-effect.waves-light.red.lighten-2.right.modal-trigger(href="#passwordWindow") 密码加密
+								a.btn.waves-effect.waves-light.red.lighten-2.right.modal-trigger(href="#passwordWindow") #{i18n.__("login.a_passwordBC")}
 									i.material-icons.left lock
 		.modal#passwordWindow
 			.modal-content
-				h4 密码加密器
-				p 使用 bcrypt 加密明文密码
-				input(type="text", id="passwordToConvert", placeholder="明文密码")
-				input(type="text", id="passwordConverted", placeholder="加密密码", readonly=true)
+				h4 #{i18n.__("login.#passwordWindow.h4")}
+				p #{i18n.__("login.#passwordWindow.p")}
+				input(type="text", id="passwordToConvert", placeholder=i18n.__('login.passwordToConvert.placeholder'))
+				input(type="text", id="passwordConverted", placeholder=i18n.__('login.passwordConverted.placeholder'), readonly=true)
 		script(src="/static/js/jquery-3.2.1.min.js", type="text/javascript")
 		script(src="/static/js/materialize.min.js", type="text/javascript")
 		script(src="/static/js/bcrypt.js", type="text/javascript")

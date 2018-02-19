@@ -100,6 +100,21 @@ a.btn-large:hover {
     background-color: rgb(255, 221, 180);
 }
 
+a.btn {
+    color: #5c5757;
+    margin-right: 30px;
+    background-color: bisque;
+    font-size: 1.5em;
+}
+
+a.btn.rightest {
+    margin-right: 0;
+}
+
+a.btn:hover {
+    background-color: rgb(255, 221, 180);
+}
+
 a.modal-action#delete {
     color: #ff2a31;
 }

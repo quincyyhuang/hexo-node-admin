@@ -6,6 +6,7 @@ const yaml = require('js-yaml')
 var formidable = require('formidable')
 var bcrypt = require('bcryptjs')
 const { exec, execFile } = require('child_process')
+var i18n = new(require('./i18n'))
 
 // Promisify
 const readdir = util.promisify(fs.readdir)
@@ -18,8 +19,7 @@ const rmdir = require('rmdir')
 
 // Read settings
 try {
-    var config = JSON.parse(fs.readFileSync('./config.json'))
-    
+    var config = JSON.parse(fs.readFileSync(path.join(__dirname, '../', 'config.json'), 'utf8'))
 } catch (e) {
     console.log('Bad config file.')
     process.exit()
@@ -43,7 +43,9 @@ function index(req, res) {
     if (req.session.loggedIn == true) {
         res.redirect('/!')
     } else {
-        res.render('login')
+        res.render('login', {
+            i18n
+        })
     }
 }
 
@@ -91,7 +93,8 @@ async function dashboard(req, res) {
 
     res.render('dashboard', {
         postCounts: posts.length,
-        pageCounts: pages.length
+        pageCounts: pages.length,
+        i18n
     })
 }
 
@@ -109,7 +112,8 @@ async function post(req, res) {
     }
     
     res.render('post', {
-        posts: posts
+        posts: posts,
+        i18n
     })
 }
 
@@ -127,7 +131,8 @@ async function page(req, res) {
     }
     
     res.render('page', {
-        pages: pages
+        pages: pages,
+        i18n
     })
 }
 
@@ -167,7 +172,8 @@ async function showPost(req, res) {
             return res.render('editor', {
                 fileName: fileName,
                 type: 'post',
-                post_asset_folder: config_yml.post_asset_folder
+                post_asset_folder: config_yml.post_asset_folder,
+                i18n
             })
         }
     }
@@ -209,7 +215,8 @@ async function showPage(req, res) {
             return res.render('editor', {
                 fileName: path.dirname(fileName),
                 type: 'page',
-                post_asset_folder: config_yml.post_asset_folder
+                post_asset_folder: config_yml.post_asset_folder,
+                i18n
             })
         }
     }
@@ -503,12 +510,15 @@ async function stats(req, res) {
         pageCounts: pages.length,
         post_asset_folder: config_yml.post_asset_folder,
         deploy: config.deploy.type,
-        theme: config_yml.theme
+        theme: config_yml.theme,
+        i18n
     })
 }
 
 async function about(req, res) {
-    return res.render('about')
+    return res.render('about', {
+        i18n
+    })
 }
 
 // Exports

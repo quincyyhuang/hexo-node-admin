@@ -1,7 +1,7 @@
 doctype html
 html
 	head
-		title Hexo 管理 仪表盘
+		title #{i18n.__("dashboard.title")}
 		<!--Import Google Icon Font-->
 		link(rel="stylesheet", href="https://fonts.googleapis.com/icon?family=Material+Icons")
 		<!--Import materialize.css-->
@@ -14,94 +14,94 @@ html
 			nav.top-nav
 				.container
 					.nav-wrapper
-						a.page-title 仪表盘
+						a.page-title #{i18n.__("dashboard.page-title")}
 			ul.side-nav.fixed
 				li
 					a.nav-logo(href="/")
 						i.material-icons local_cafe
-						| Hexo后台管理
+						| #{i18n.__("nav-logo")}
 				li
 					.divider
 				li
-					a.subheader 管理
+					a.subheader #{i18n.__("nav.subheader1")}
 				li.active
-					a.waves-effect.white-text(href="/!") 仪表盘
+					a.waves-effect.white-text(href="/!") #{i18n.__("nav.dashboard")}
 				li
-					a.waves-effect(href="/!post") 文章
+					a.waves-effect(href="/!post") #{i18n.__("nav.posts")}
 				li
-					a.waves-effect(href="/!page") 页面
+					a.waves-effect(href="/!page") #{i18n.__("nav.pages")}
 				li
-					a.waves-effect(href="/!logout") 登出
+					a.waves-effect(href="/!logout") #{i18n.__("nav.logout")}
 				li
 					.divider
 				li
-					a.subheader 其它
+					a.subheader #{i18n.__("nav.subheader2")}
 				li
-					a.waves-effect(href="/!stats") 统计
+					a.waves-effect(href="/!stats") #{i18n.__("nav.stats")}
 				li
-					a.waves-effect(href="/!about") 关于
+					a.waves-effect(href="/!about") #{i18n.__("nav.about")}
 		main
 			.container
 				.row
 					.col.s12.m9.l10
 						.section
-							p.caption 共有 #{postCounts} 篇文章，#{pageCounts} 个页面。
-							h2.header 浏览
+							p.caption #{i18n.__("dashboard.section1.caption.head")} #{postCounts} #{i18n.__("dashboard.section1.caption.posts")}, #{pageCounts} #{i18n.__("dashboard.section1.caption.pages")}.
+							h2.header #{i18n.__("dashboard.section1.header")}
 							a.waves-effect.waves-light.btn-large(href="/!post")
 								i.material-icons.left note
-								| 文章
+								| #{i18n.__("dashboard.section1.a.posts")}
 							a.waves-effect.waves-light.btn-large(href="/!page")
 								i.material-icons.left pages
-								| 页面
+								| #{i18n.__("dashboard.section1.a.pages")}
 						.section
-							h2.header 创作
+							h2.header #{i18n.__("dashboard.section2.header")}
 							a.waves-effect.waves-light.btn-large.modal-trigger(href="#modalPost")
 								i.material-icons.left note
-								| 新文章
+								| #{i18n.__("dashboard.section2.a.posts")}
 							a.waves-effect.waves-light.btn-large.modal-trigger(href="#modalPage")
 								i.material-icons.left pages
-								| 新页面
+								| #{i18n.__("dashboard.section2.a.pages")}
 							.modal#modalPost
 								.modal-content
-									h4 文件名
-									input#postFilename(type="text" placeholder="文件名")
+									h4 #{i18n.__("dashboard.section2.modal.modalPost.h4")}
+									input#postFilename(type="text" placeholder=i18n.__("dashboard.section2.modal.modalPost.placeholder"))
 								.modal-footer
-									a.modal-action.modal-close.waves-effect.waves-red.btn-flat 取消
-									a.modal-action.modal-close.waves-effect.waves-green.btn-flat#postButton 提交
+									a.modal-action.modal-close.waves-effect.waves-red.btn-flat #{i18n.__("dashboard.section2.modal.modalPost.a.cancel")}
+									a.modal-action.modal-close.waves-effect.waves-green.btn-flat#postButton #{i18n.__("dashboard.section2.modal.modalPost.a.postButton")}
 							.modal#modalPage
 								.modal-content
-									h4 文件名
-									input#pageFilename(type="text" placeholder="文件名")
+									h4 #{i18n.__("dashboard.section2.modal.modalPage.h4")}
+									input#pageFilename(type="text" placeholder=i18n.__("dashboard.section2.modal.modalPage.placeholder"))
 								.modal-footer
-									a.modal-action.modal-close.waves-effect.waves-red.btn-flat 取消
-									a.modal-action.modal-close.waves-effect.waves-green.btn-flat#pageButton 提交
+									a.modal-action.modal-close.waves-effect.waves-red.btn-flat #{i18n.__("dashboard.section2.modal.modalPage.a.cancel")}
+									a.modal-action.modal-close.waves-effect.waves-green.btn-flat#pageButton #{i18n.__("dashboard.section2.modal.modalPage.a.postButton")}
 						.section
-							h2.header 管理
-							p.caption 文章发布请先进行创作。
+							h2.header #{i18n.__("dashboard.section3.header")}
+							p.caption #{i18n.__("dashboard.section3.caption")}
 							a.waves-effect.waves-light.btn-large#generate
 								i.material-icons.left build
-								| 生成
+								| #{i18n.__("dashboard.section3.a.generate")}
 							a.waves-effect.waves-light.btn-large#deploy
 								i.material-icons.left cloud_circle
-								| 部署
+								| #{i18n.__("dashboard.section3.a.deploy")}
 							a.waves-effect.waves-light.btn-large.modal-trigger(href="#hexoClean")
 								i.material-icons.left delete_sweep
-								| 清理
+								| #{i18n.__("dashboard.section3.a.clean")}
 							.modal#hexoClean
 								.modal-content
-									h4 您确定清理生成文件夹吗？
-									p 删除操作将无法撤销。
+									h4 #{i18n.__("dashboard.section3.modal.hexoClean.h4")}
+									p #{i18n.__("dashboard.section3.modal.hexoClean.p")}
 								.modal-footer
-									a.modal-action.modal-close.waves-effect.waves-red.btn-flat 取消
-									a.modal-action.modal-close.waves-effect.waves-green.btn-flat#delete 确认
+									a.modal-action.modal-close.waves-effect.waves-red.btn-flat #{i18n.__("dashboard.section3.modal.hexoClean.cancel")}
+									a.modal-action.modal-close.waves-effect.waves-green.btn-flat#delete #{i18n.__("dashboard.section3.modal.hexoClean.delete")}
 							.modal#hexoGenerate
 								.modal-content
-									h4 生成中···
+									h4 #{i18n.__("dashboard.section3.modal.hexoGenerate.h4")}
 									.progress
 										.indeterminate
 							.modal#hexoDeploy
 								.modal-content
-									h4 部署中···
+									h4 #{i18n.__("dashboard.section3.modal.hexoDeploy.h4")}
 									.progress
 										.indeterminate
 									.console#deployConsole
@@ -131,13 +131,13 @@ html
 				.then(response => {
 					$("#postFilename").val('')
 					if (response.status == 200) {
-						var $toastContent = $('<span><b>创建成功！</b></span>').add($('<i class="material-icons right">check</i>'))
+						var $toastContent = $('<span><b>#{i18n.__("dashboard.script.create.succeed")}</b></span>').add($('<i class="material-icons right">check</i>'))
 						Materialize.toast($toastContent, 1000, '', () => {
 							window.location.href = '/!post'
 						})
 					}
 					else {
-						var $toastContent = $('<span style="color: red;"><b>创建失败！</b></span>').add($('<i class="material-icons right">clear</i>'))
+						var $toastContent = $('<span style="color: red;"><b>#{i18n.__("dashboard.script.create.fail")}</b></span>').add($('<i class="material-icons right">clear</i>'))
 						Materialize.toast($toastContent, 3000)
 					}
 				})
@@ -159,13 +159,13 @@ html
 				.then(response => {
 					$("#postFilename").val('')
 					if (response.status == 200) {
-						var $toastContent = $('<span><b>创建成功！</b></span>').add($('<i class="material-icons right">check</i>'))
+						var $toastContent = $('<span><b>#{i18n.__("dashboard.script.create.succeed")}</b></span>').add($('<i class="material-icons right">check</i>'))
 						Materialize.toast($toastContent, 1000, '', () => {
 							window.location.href = '/!page'
 						})
 					}
 					else {
-						var $toastContent = $('<span style="color: red;"><b>创建失败！</b></span>').add($('<i class="material-icons right">clear</i>'))
+						var $toastContent = $('<span style="color: red;"><b>#{i18n.__("dashboard.script.create.fail")}</b></span>').add($('<i class="material-icons right">clear</i>'))
 						Materialize.toast($toastContent, 3000)
 					}
 				})
@@ -185,11 +185,11 @@ html
 				})
 				.then(response => {
 					if (response.status == 200) {
-						var $toastContent = $('<span><b>清理成功！</b></span>').add($('<i class="material-icons right">check</i>'))
+						var $toastContent = $('<span><b>#{i18n.__("dashboard.script.clean.succeed")}</b></span>').add($('<i class="material-icons right">check</i>'))
 						Materialize.toast($toastContent, 3000)
 					}
 					else {
-						var $toastContent = $('<span style="color: red;"><b>清理失败！生成文件夹可能不存在。</b></span>').add($('<i class="material-icons right">clear</i>'))
+						var $toastContent = $('<span style="color: red;"><b>#{i18n.__("dashboard.script.clean.fail")}</b></span>').add($('<i class="material-icons right">clear</i>'))
 						Materialize.toast($toastContent, 3000)
 					}
 				})
@@ -203,12 +203,12 @@ html
 				})
 				.then(response => {
 					if (response.status == 200) {
-						var $toastContent = $('<span><b>生成成功！</b></span>').add($('<i class="material-icons right">check</i>'))
+						var $toastContent = $('<span><b>#{i18n.__("dashboard.script.generate.succeed")}</b></span>').add($('<i class="material-icons right">check</i>'))
 						$("#hexoGenerate").modal('close')
 						Materialize.toast($toastContent, 3000)
 					}
 					else {
-						var $toastContent = $('<span style="color: red;"><b>生成失败！</b></span>').add($('<i class="material-icons right">clear</i>'))
+						var $toastContent = $('<span style="color: red;"><b>#{i18n.__("dashboard.script.generate.fail")}</b></span>').add($('<i class="material-icons right">clear</i>'))
 						$("#hexoGenerate").modal('close')
 						Materialize.toast($toastContent, 3000)
 					}
@@ -217,7 +217,7 @@ html
 
 			var deploy = function() {
 				$("#hexoDeploy").modal('open')
-				$("#hexoDeploy .modal-content h4").text('部署中···')
+				$("#hexoDeploy .modal-content h4").text('#{i18n.__("dashboard.section3.modal.hexoDeploy.h4")}')
 				$("#hexoDeploy .modal-content .progress").html('<div class="indeterminate"></div>')
 				$("#hexoDeploy .modal-content #deployConsole").html('')
 				$("#hexoDeploy .modal-footer").remove()
@@ -228,21 +228,21 @@ html
 				.then(response => response.json())
 				.then((data) => {
 					if (data.error || data.stderr) {
-						$("#hexoDeploy .modal-content h4").text('部署执行错误')
+						$("#hexoDeploy .modal-content h4").text('#{i18n.__("dashboard.script.deploy.fail")}')
 						$("#hexoDeploy .modal-content .progress").html('<div class="determinate" style="width: 100%"></div>')
 						if (data.error) $("#deployConsole").html('<p class="error">' + data.error + '</p>')
 						if (data.stdout) $("#deployConsole").html('<p class="stdout">' + data.stdout + '</p>')
 						if (data.stderr) $("#deployConsole").html('<p class="stderr">' + data.stderr + '</p>')
-						$("#hexoDeploy").append('<div class="modal-footer"><a class="modal-action modal-close waves-effect waves-green btn-flat">关闭</a></div>')
+						$("#hexoDeploy").append('<div class="modal-footer"><a class="modal-action modal-close waves-effect waves-green btn-flat">#{i18n.__("dashboard.section3.modal.hexoDeploy.close")}</a></div>')
 					} else {
-						$("#hexoDeploy .modal-content h4").text('部署执行成功')
+						$("#hexoDeploy .modal-content h4").text('#{i18n.__("dashboard.script.deploy.succeed")}')
 						$("#hexoDeploy .modal-content .progress").html('<div class="determinate" style="width: 100%"></div>')
 						if (data.stdout) $("#deployConsole").html('<p class="stdout">' + data.stdout + '</p>')
-						$("#hexoDeploy").append('<div class="modal-footer"><a class="modal-action modal-close waves-effect waves-green btn-flat">关闭</a></div>')
+						$("#hexoDeploy").append('<div class="modal-footer"><a class="modal-action modal-close waves-effect waves-green btn-flat">#{i18n.__("dashboard.section3.modal.hexoDeploy.close")}</a></div>')
 					}
 				})
 				.catch((err) => {
-					var $toastContent = $('<span style="color: red;"><b>部署结果解析失败！</b></span>').add($('<i class="material-icons right">clear</i>'))
+					var $toastContent = $('<span style="color: red;"><b>#{i18n.__("dashboard.script.deploy.parse.fail")}</b></span>').add($('<i class="material-icons right">clear</i>'))
 					$("#hexoDeploy").modal('close')
 					Materialize.toast($toastContent, 3000)
 				})
