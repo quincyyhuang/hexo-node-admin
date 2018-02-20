@@ -40,12 +40,14 @@ html
 		script(src="/static/js/materialize.min.js", type="text/javascript")
 		script(src="/static/js/bcrypt.js", type="text/javascript")
 		script.
-			$(".modal").modal()
-			var bcrypt = dcodeIO.bcrypt
-			var showConverted = function() {
-				var plain = $("#passwordToConvert").val()
-				var hash = bcrypt.hashSync(plain, 8)
-				$("#passwordConverted").val(hash)
-			}
+			$( document ).ready(() => {
+				$(".modal").modal()
+				var bcrypt = dcodeIO.bcrypt
+				var showConverted = function() {
+					var plain = $("#passwordToConvert").val()
+					var hash = bcrypt.hashSync(plain, 8)
+					$("#passwordConverted").val(hash)
+				}
 
-			$("#passwordToConvert").change(showConverted)
+				$("#passwordToConvert").change(showConverted)
+			})

@@ -31,7 +31,10 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 // Use the session middleware
 app.use(session({
-    store: new FileStore,
+    store: new FileStore({
+        ttl: 24*60*60,  // Sesstion ttl a day
+        logFn: () => {} // Suppress the session file log message
+    }),
 	secret: 'hexo-node-admin',
 	resave: true,
     saveUninitialized: false

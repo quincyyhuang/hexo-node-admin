@@ -125,13 +125,6 @@ html
 		script(src="/static/js/jquery-3.2.1.min.js", type="text/javascript")
 		script(src="/static/js/materialize.min.js", type="text/javascript")
 		script.
-			$('.modal').modal()
-			$('#hexoGenerate').modal({
-				dismissible: false
-			})
-			$('#hexoDeploy').modal({
-				dismissible: false
-			})
 			var post = function() {
 				var payload = {
 					type: 'post',
@@ -265,9 +258,19 @@ html
 				})
 			}
 
-			// Bind
-			$("#postButton").click(post)
-			$("#pageButton").click(page)
-			$("#delete").click(clean)
-			$("#generate").click(generate)
-			$("#deploy").click(deploy)
+			$( document ).ready(() => {
+				$('.modal').modal()
+				$('#hexoGenerate').modal({
+					dismissible: false
+				})
+				$('#hexoDeploy').modal({
+					dismissible: false
+				})
+
+				// Bind
+				$("#postButton").click(post)
+				$("#pageButton").click(page)
+				$("#delete").click(clean)
+				$("#generate").click(generate)
+				$("#deploy").click(deploy)
+			})
