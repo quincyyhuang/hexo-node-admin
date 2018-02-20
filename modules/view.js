@@ -461,7 +461,7 @@ async function upload(req, res) {
             try {
                 await mkdir(folder)
             } catch (e) {
-                if (e.errno != -4075) return res.sendStatus(500)
+                if (e.code != 'EEXIST') return res.sendStatus(500)
             }
         }
         else if (req.query.type == 'page') {
@@ -470,7 +470,7 @@ async function upload(req, res) {
             try {
                 await mkdir(folder)
             } catch (e) {
-                if (e.errno != -4075) return res.sendStatus(500)
+                if (e.code != 'EEXIST') return res.sendStatus(500)
             }
         }
         else return res.sendStatus(400)
@@ -480,7 +480,6 @@ async function upload(req, res) {
             try {
                 await rename(files.file.path, path.join(path.dirname(files.file.path), files.file.name))
             } catch (e) {
-                console.log(e)
                 return res.sendStatus(500)
             }
             return res.sendStatus(200)
