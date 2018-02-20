@@ -392,12 +392,12 @@ async function deploy(req, res) {
 
             break
         }
-        case 'script': {
+        case 'custom': {
             var script = config.deploy.script
-            if (!script) return res.json({ error: '脚本不能为空' })
+            if (!script) return res.json({ error: i18n.__("view.deploy.error.scriptNull") })
             if (path.isAbsolute(script)) {
                 // Is file
-                if (process.platform == 'win32' && (path.extname(script) != '.cmd' || path.extname(script) != '.bat')) return res.json({ error: '在 Windows 平台上脚本后缀名应为 .cmd 或者 .bat' })
+                if (process.platform == 'win32' && (path.extname(script) != '.cmd' || path.extname(script) != '.bat')) return res.json({ error: i18n.__("view.deploy.error.wrongExtension") })
                 var options = {
                     cwd: config.hexo_dir
                 }
@@ -424,7 +424,7 @@ async function deploy(req, res) {
         }
         default: {
             return res.json({
-                error: '错误的部署设置'
+                error: i18n.__("view.deploy.error.wrongType")
             })
         }
     }

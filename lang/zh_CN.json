@@ -122,5 +122,8 @@
     "editor.script.loadAsset.fail": "资源载入失败！",
     "editor.script.asset.delete": "删除",
     "editor.script.asset.delete.succeed": "删除成功！",
-    "editor.script.asset.delete.fail": "删除失败！"
+    "editor.script.asset.delete.fail": "删除失败！",
+    "view.deploy.error.scriptNull": "脚本不能为空！",
+    "view.deploy.error.wrongExtension": "在 Windows 平台上脚本后缀名应为 .cmd 或者 .bat",
+    "view.deploy.error.wrongType": "错误的部署设置。部署类型应为 default 或者 custom 。"
 }

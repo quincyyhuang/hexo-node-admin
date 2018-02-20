@@ -171,6 +171,8 @@ Just define your deploy setting in `_config.yml` of your Hexo folder as suggeste
 
 Change the deploy type in `config.json` to `custom` and specify the `script` field.
 
+**Notice!** Don't forget to `chmod +x your_script.sh` on `Linux` and `Mac`.
+
 **Notice!** The `script` field can either be **The Absolute Path of a shell file (`.sh` on Linux/Mac, `.cmd` or `.bat` on Windows)**, or **A single line of command like `cp -fr /path/to/hexo/public/* /webroot`**.
 
 ## Contribute
