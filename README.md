@@ -23,6 +23,7 @@ Works with `3.x`, not sure if it works with `2.x` or `1.x`, you can give it a tr
 - [**Password**](#password)
 - [**Auto-saving**](#auto-saving)
 - [**Language**](#language)
+- [**Assets**](#assets)
 - [**Deploy**](#deploy)
 - [**Contribute**](#contribute)
 - [**Donate**](#donate)
@@ -35,23 +36,23 @@ Works with `3.x`, not sure if it works with `2.x` or `1.x`, you can give it a tr
 
 ### 1. Clone this repository to wherever you like and enter it. (Or download as a zip file and unzip it into your hexo folder.)
 
-```shell
+```
 git clone https://github.com/quincyyhuang/hexo-node-admin
 cd hexo-node-admin
 ```
 
 ### 2. Install dependencies using NPM or Yarn
 
-```shell
+```
 // NPM
 npm install
 // Yarn
 yarn
 ```
 
-### 3. Add your path to hexo to `config.json`
+### 3. Add your absolute path to hexo to `config.json`
 
-```shell
+```
 {
     "port": 4001,
     "admin": {
@@ -70,7 +71,7 @@ yarn
 
 ### 4. Go!
 
-```shell
+```
 // Using NPM
 npm start
 // Using Yarn
@@ -125,6 +126,38 @@ Change the `lang` field in `config.json`. Default is `en_US`. Following language
 
 - `en_US`
 - `zh_CN` 简体中文
+
+## Assets
+
+Read [this](https://hexo.io/docs/asset-folders.html) about `post_asset_folder` before.
+
+Change the `post_asset_folder` field to `true` in `_config.yml` of your Hexo will do.
+
+**Notice!** New asset folder of the same name with your file will be created if there isn't one.
+
+### Upload Asset
+
+Upload is easy. Just click the button `Upload` and choose your file. It will be uploaded to the asset folder.
+
+![upload](docs/upload.png)
+
+### Delete Asset
+
+Delete is easy. Just click the button `Assets` to show your assets and click `Delete`.
+
+![assets](docs/assets.png)
+
+### Reference Asset
+
+You can read [this](https://hexo.io/docs/asset-folders.html#Tag-Plugins-For-Relative-Path-Referencing) on how to reference your assets in your files.
+
+Basically:
+
+```
+{% asset_path slug %}
+{% asset_img slug [title] %}
+{% asset_link slug [title] %}
+```
 
 ## Deploy
 
