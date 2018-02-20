@@ -134,37 +134,8 @@ html
 			// Keep a reference
 			var xhr
 			var serverVersion
-
-			$('.modal').modal()
-			$("#uploading").modal({
-				dismissible: false
-			})
-			var simplemde = new SimpleMDE({
-				element: $(".editor")[0],
-				autofocus: true,
-				autosave: {
-					enabled: true,
-					uniqueId: "#{fileName}",
-					delay: 3000
-				},
-				toolbar: ["bold", "italic", "heading", "|", "code", "quote", "link", "image", "|",  "preview", "guide"]
-			});
-
-			var getUrl = window.location.href + '&a=getContent'
-			// set the value of editor on page open, if cache then cache else original
-			fetch(getUrl, {credentials: 'include'})
-			.then(response => response.json())
-			.then((data) => {
-				serverVersion = data.content
-				var browserVersion = localStorage.getItem("smde_#{fileName}")
-				if (browserVersion == undefined || browserVersion == null) {
-					simplemde.value(serverVersion)
-				} else {
-					simplemde.value(browserVersion)
-				}
-			})
-			.catch(e => console.log("Oops, error", e))
-
+			var simplemde
+			
 			// Button Click Action
 			var reload = function() {
 				// Re-get the content and show
@@ -332,20 +303,64 @@ html
 				})
 			}
 
-			// Bind
-			$("#cancel").click(reload)
-			$("#save").click(save)
-			$("#delete").click(deleteFn)
-			$("#showUpload").click(showUpload)
-			$("#upload").click(upload)
-			$("#cancelUpload").click(cancelUpload)
-			$("#assets").click(assets)
-			$("#selectFile").click(() => {
-				$("#open").click()
+			var getUrl = window.location.href + '&a=getContent'
+			// set the value of editor on page open, if cache then cache else original
+			$( document ).ready(() => {
+				fetch(getUrl, {credentials: 'include'})
+				.then(response => response.json())
+				.then((data) => {
+					serverVersion = data.content
+					var browserVersion = localStorage.getItem("smde_#{fileName}")
+					if (browserVersion == undefined || browserVersion == null) {
+						simplemde = new SimpleMDE({
+							element: $(".editor")[0],
+							autofocus: true,
+							autosave: {
+								enabled: true,
+								uniqueId: "#{fileName}",
+								delay: 3000
+							},
+							toolbar: ["bold", "italic", "heading", "|", "code", "quote", "link", "image", "|",  "preview", "guide"],
+							initialValue: serverVersion
+						})
+					} else {
+						simplemde = new SimpleMDE({
+							element: $(".editor")[0],
+							autofocus: true,
+							autosave: {
+								enabled: true,
+								uniqueId: "#{fileName}",
+								delay: 3000
+							},
+							toolbar: ["bold", "italic", "heading", "|", "code", "quote", "link", "image", "|",  "preview", "guide"],
+							initialValue: browserVersion
+						})
+					}
+				})
+				.catch(e => console.log("Oops, error", e))
+
+				$('.modal').modal()
+				$("#uploading").modal({
+					dismissible: false
+				})
+
+				// Bind
+				$("#cancel").click(reload)
+				$("#save").click(save)
+				$("#delete").click(deleteFn)
+				$("#showUpload").click(showUpload)
+				$("#upload").click(upload)
+				$("#cancelUpload").click(cancelUpload)
+				$("#assets").click(assets)
+				$("#selectFile").click(() => {
+					$("#open").click()
+				})
+				$("#open").change(() => {
+					$("#uploadFile p").text($("#open").val())
+				})
 			})
-			$("#open").change(() => {
-				$("#uploadFile p").text($("#open").val())
-			})
+
+			
 
 			//- window.onbeforeunload = function() {
 			//- 	// if user doesn't save to server when they have modified the file, give an alert, but the auto-save is still safe.

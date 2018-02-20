@@ -116,7 +116,7 @@ By default, your password is saved in plain text. To encrypt your password, foll
 
 ## Auto-saving
 
-The markdown editor autosaves the content in it every 5 seconds to `localStorage` of your browser. **If you want to apply the change to server, please click button `Save`**.
+The markdown editor autosaves the content in it every 3 seconds to `localStorage` of your browser. **If you want to apply the change to server, please click button `Save`**.
 
 **Notice!** The editor lazy-loads your posts and pages which means only if you click button `Reload`, it retrieves the file from server. Otherwise it displays what is stored in your browser(your latest editing version). In this case, you should **feel safe** to close the editor whenever you like without feeling unsure about your work.
 
