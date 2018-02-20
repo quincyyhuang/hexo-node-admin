@@ -1,6 +1,6 @@
 {
   "name": "hexo-node-admin",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A Hexo management tool with UI designed to make it easier for you to compose.",
   "main": "index.js",
   "scripts": {

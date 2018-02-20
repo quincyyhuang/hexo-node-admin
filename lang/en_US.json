@@ -122,5 +122,8 @@
     "editor.script.loadAsset.fail": "Load assets failed!",
     "editor.script.asset.delete": "Delete",
     "editor.script.asset.delete.succeed": "Delete successfully!",
-    "editor.script.asset.delete.fail": "Delete failed!"
+    "editor.script.asset.delete.fail": "Delete failed!",
+    "view.deploy.error.scriptNull": "You need to specify a script.",
+    "view.deploy.error.wrongExtension": "On Windows, the script extension should be .cmd or .bat",
+    "view.deploy.error.wrongType": "Wrong deploy type. Should be default or custom ."
 }
