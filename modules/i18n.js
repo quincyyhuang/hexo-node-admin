@@ -3,7 +3,7 @@ const fs = require('fs')
 
 // Settings
 try {
-    var config = JSON.parse(fs.readFileSync('./config.json'))
+    var config = JSON.parse(fs.readFileSync(path.join(__dirname, '../', 'config.json'), 'utf8'))
 } catch (e) {
     console.log('Bad config file.')
     process.exit()
