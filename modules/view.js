@@ -25,7 +25,7 @@ try {
     process.exit()
 }
 
-const hexoRoot = config.hexo_dir || __dirname
+const hexoRoot = config.hexo_dir || path.join(__dirname, '../', '../')  // The default working directory is the parent directory.
 
 try {
     var config_yml = yaml.safeLoad(fs.readFileSync(path.join(hexoRoot, '_config.yml'), 'utf8'))
@@ -345,10 +345,10 @@ async function deleteFn(req, res){
 async function generate(req, res) {
     var Hexo = require('hexo')
     var hexo = new Hexo(hexoRoot, {
-        silent: true
+        // silent: true
     })
     hexo.init().then(() => {
-        hexo.call('generate').then(function(){
+        hexo.call('generate', {}).then(function(){
             return hexo.exit()
         }).catch((err) => {
             console.log(err)
@@ -371,7 +371,6 @@ async function deploy(req, res) {
             // })
             // hexo.init().then(() => {
             //     hexo.call('deploy', {}).then(() => {
-                    
             //         return hexo.exit()
             //     }).catch((err) => {
             //         console.log(err)
@@ -382,10 +381,16 @@ async function deploy(req, res) {
             // Using exec command
             var command = 'hexo deploy'
             var options = {
-                cwd: "H:\\projects\\Hexo"
+                cwd: hexoRoot
             }
             var cb = (error, stdout, stderr) => {
-                var rt = { error, stdout, stderr }
+                var deployStatus = false
+                if (error) {
+                    var rt = { deployStatus, error, stdout, stderr }
+                    return res.json(rt)
+                }
+                if (stdout.includes('Deploy done') || (!error && !stderr)) deployStatus = true
+                var rt = { deployStatus, error, stdout, stderr }
                 return res.json(rt)
             }
             exec(command, options, cb)

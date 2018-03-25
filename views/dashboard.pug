@@ -237,17 +237,19 @@ html
 				})
 				.then(response => response.json())
 				.then((data) => {
-					if (data.error || data.stderr) {
+					if (data.deployStatus == false) {
 						$("#hexoDeploy .modal-content h4").text('#{i18n.__("dashboard.script.deploy.fail")}')
 						$("#hexoDeploy .modal-content .progress").html('<div class="determinate" style="width: 100%"></div>')
 						if (data.error) $("#deployConsole").html('<p class="error">' + data.error + '</p>')
 						if (data.stdout) $("#deployConsole").html('<p class="stdout">' + data.stdout + '</p>')
 						if (data.stderr) $("#deployConsole").html('<p class="stderr">' + data.stderr + '</p>')
 						$("#hexoDeploy").append('<div class="modal-footer"><a class="modal-action modal-close waves-effect waves-green btn-flat">#{i18n.__("dashboard.section3.modal.hexoDeploy.close")}</a></div>')
-					} else {
+					} else if (data.deployStatus == true) {
 						$("#hexoDeploy .modal-content h4").text('#{i18n.__("dashboard.script.deploy.succeed")}')
 						$("#hexoDeploy .modal-content .progress").html('<div class="determinate" style="width: 100%"></div>')
+						if (data.error) $("#deployConsole").html('<p class="error">' + data.error + '</p>')
 						if (data.stdout) $("#deployConsole").html('<p class="stdout">' + data.stdout + '</p>')
+						if (data.stderr) $("#deployConsole").html('<p class="stderr">' + data.stderr + '</p>')
 						$("#hexoDeploy").append('<div class="modal-footer"><a class="modal-action modal-close waves-effect waves-green btn-flat">#{i18n.__("dashboard.section3.modal.hexoDeploy.close")}</a></div>')
 					}
 				})
