@@ -402,13 +402,21 @@ async function deploy(req, res) {
             if (!script) return res.json({ error: i18n.__("view.deploy.error.scriptNull") })
             if (path.isAbsolute(script)) {
                 // Is file
-                if (process.platform == 'win32' && (path.extname(script) != '.cmd' || path.extname(script) != '.bat')) return res.json({ error: i18n.__("view.deploy.error.wrongExtension") })
+                if (process.platform == 'win32' && !((path.extname(script) == '.cmd') || (path.extname(script) == '.bat'))) return res.json({ error: i18n.__("view.deploy.error.wrongExtension") })
                 var options = {
                     cwd: config.hexo_dir
                 }
                 var cb = (error, stdout, stderr) => {
-                    var rt = { error, stdout, stderr }
-                    return res.json(rt)
+                    var deployStatus = false
+                    if (error) {
+                        var rt = { deployStatus, error, stdout, stderr }
+                        return res.json(rt)
+                    }
+                    else {
+                        deployStatus = true
+                        var rt = { deployStatus, error, stdout, stderr }
+                        return res.json(rt)
+                    }
                 }
                 execFile(script, [], options, cb)
             }
@@ -419,8 +427,16 @@ async function deploy(req, res) {
                     cwd: config.hexo_dir
                 }
                 var cb = (error, stdout, stderr) => {
-                    var rt = { error, stdout, stderr }
-                    return res.json(rt)
+                    var deployStatus = false
+                    if (error) {
+                        var rt = { deployStatus, error, stdout, stderr }
+                        return res.json(rt)
+                    }
+                    else {
+                        deployStatus = true
+                        var rt = { deployStatus, error, stdout, stderr }
+                        return res.json(rt)
+                    }
                 }
                 exec(command, options, cb)
             }
