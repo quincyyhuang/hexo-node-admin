@@ -3,6 +3,10 @@
   "version": "0.1.5",
   "description": "A Hexo management tool with UI designed to make it easier for you to compose.",
   "main": "index.js",
+  "engineStrict": true,
+  "engines": {
+    "node": ">=8.10.0"
+  },
   "scripts": {
     "start": "node index.js"
   },
@@ -18,14 +22,14 @@
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "body-parser": "^1.18.2",
-    "express": "^4.16.2",
-    "express-session": "^1.15.6",
-    "formidable": "^1.1.1",
-    "hexo": "^3.5.0",
-    "js-yaml": "^3.10.0",
-    "pug": "^2.0.0-rc.4",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "formidable": "^1.2.2",
+    "hexo": "^4.2.0",
+    "js-yaml": "^3.13.1",
+    "pug": "^2.0.4",
     "rmdir": "^1.2.0",
-    "session-file-store": "^1.2.0"
+    "session-file-store": "^1.4.0"
   }
 }

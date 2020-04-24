@@ -2,9 +2,13 @@
 
 A [Hexo](https://hexo.io/) management tool with UI designed to make it easier for you to compose, inspired by [hexo-admin](https://github.com/jaredly/hexo-admin).
 
+## Next steps!
+
+[April 2020] A revamp is coming soon. Features more modern UI and addresses history issues.
+
 ## Hexo Version
 
-Works with `3.x`, not sure if it works with `2.x` or `1.x`, you can give it a try :D.
+Works with `4.x`, `3.x`, not sure if it works with `2.x` or `1.x`, you can give it a try :D.
 
 ## Features
 
@@ -178,15 +182,3 @@ Change the deploy type in `config.json` to `custom` and specify the `script` fie
 ## Contribute
 
 I sincerely welcome everyone to contribute to this project. Thanks a lot!
-
-## Donate
-
-If you like this project, feel free to donate! Appreciated!
-
-### Alipay
-
-<img src="docs/alipay_donation.jpg" width="300">
-
-### Paypal
-
-Send money to `quincyyhuang@gmail.com`
