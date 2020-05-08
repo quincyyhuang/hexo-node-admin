@@ -1,11 +1,8 @@
 import React from 'react';
-import '../css/App.css';
 
 // Custom Components
 import Login from './Login';
 import Dashboard from './Dashboard';
-import Lister from './Lister';
-import Other from './Other';
 
 // Router
 import {
@@ -18,24 +15,8 @@ class App extends React.Component {
     return (
       <div>
         <Switch>
-          <Route path='/!'>
-            <Dashboard />
-          </Route>
-          <Route path='/posts'>
-            <Lister type='posts'/>
-          </Route>
-          <Route path='/pages'>
-            <Lister type='pages' />
-          </Route>
-          <Route path='/stats'>
-            <Other type='stats' />
-          </Route>
-          <Route path='/about'>
-            <Other type='about' />
-          </Route>
-          <Route path='/'>
-            <Login />
-          </Route>
+          <Route path='/!' component={Dashboard} />
+          <Route path='/' component={Login} />
         </Switch>
       </div>
     );
