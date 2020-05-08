@@ -1,0 +1,14 @@
+{
+    "port": 4001,
+    "hexo_dir": "/Users/quincy/Desktop/blog",
+    "admin": {
+        "username": "test",
+        "password": "test"
+    },
+    "deploy": {
+        "type": "script",
+        "script": "s.sh"
+    },
+    "lang": "en_US",
+    "jwt_secret": "hexo-node-admin"
+}
