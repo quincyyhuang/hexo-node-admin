@@ -1,0 +1,22 @@
+.root {
+    margin-bottom: 32px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    background-color: #fafafa;
+    overflow-y: scroll;
+}
+
+.header {
+    padding: 8px;
+    color: white;
+    background-color: #e91e63;
+}
+
+.button-group {
+    margin-top: 8px;
+    margin-left: 0;
+}
+
+.search-box {
+    margin-bottom: 8px;
+}

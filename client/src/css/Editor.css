@@ -1,0 +1,15 @@
+.base {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.title {
+    flex-grow: 1;
+}
+
+.editor-wrapper {
+    flex-grow: 1;
+    overflow-y: scroll;
+}

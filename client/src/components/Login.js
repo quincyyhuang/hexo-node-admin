@@ -1,6 +1,7 @@
 // Imports
 import React from 'react';
 import axios from 'axios';
+import path from 'path';
 import { Redirect } from "react-router-dom";
 
 // Material UI Components
@@ -48,7 +49,7 @@ function LoginMessage(props) {
       onClose={props.handleClose}
     >
       <Alert severity={props.error ? 'error' : 'success'}>
-        {props.error ? props.msg : 'Login successful.'}
+        {props.msg}
       </Alert>
     </Snackbar>
   );
@@ -57,6 +58,7 @@ function LoginMessage(props) {
 class Login extends React.Component {
   constructor(props) {
     super(props);
+    console.log(process.env.REACT_APP_ROOT);
     this.state = {
       username: null,
       password: null,
@@ -64,11 +66,13 @@ class Login extends React.Component {
       msg: null,
       showMsg: false,
       redirect: false,
+      isRedirected: false,
       token: localStorage.getItem('token')
     }
     // Handle redirect to here error message
     if (props.location.state) {
-      this.state.error = true;
+      this.state.isRedirected = true;
+      this.state.error = props.location.state.error;
       this.state.msg = props.location.state.msg;
       this.state.showMsg = true;
     }
@@ -77,7 +81,7 @@ class Login extends React.Component {
   }
 
   login() {
-    const url = '/api/auth/login';
+    const url = path.resolve(process.env.REACT_APP_ROOT, 'api', 'auth', 'login');
     axios.post(url, {
       u: this.state.username,
       p: this.state.password
@@ -87,21 +91,24 @@ class Login extends React.Component {
         localStorage.setItem('token', token);
         this.setState({
           error: false,
-          showMsg: true
+          msg: 'Login successful.',
+          showMsg: true,
+          isRedirected: false
         });
       })
       .catch((err) => {
         this.setState({
           error: true,
           msg: err.response.data.msg || 'Failed to connect to the server.',
-          showMsg: true
+          showMsg: true,
+          isRedirected: false
         });
       });
   }
 
   render() {
     if (this.state.redirect === true || this.state.token)
-      return <Redirect to={'/!'} />
+      return <Redirect to={path.resolve(process.env.REACT_APP_ROOT, '!')} />
     else
     return (
       <Container component='main' maxWidth='xs'>
@@ -110,11 +117,18 @@ class Login extends React.Component {
             this.setState({
               showMsg: false,
             });
-          else
-            this.setState({
-              showMsg: false,
-              redirect: true
-            });
+          else {
+            if (this.state.isRedirected === true)
+              this.setState({
+                showMsg: false,
+                isRedirected: false
+              });
+            else
+              this.setState({
+                showMsg: false,
+                redirect: true
+              });
+          }
         }} />
         <SDiv className='paper'>
           <Typography component="h1" variant="h4">

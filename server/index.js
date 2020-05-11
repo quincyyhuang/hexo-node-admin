@@ -28,10 +28,10 @@ app.use((err, req, res, next) => {
     next();
 });
 
-app.use('/api/auth', auth);
-app.use('/api/hexo', hexo);
+app.use(path.resolve(config.root || '/', 'api', 'auth'), auth);
+app.use(path.resolve(config.root || '/', 'api', 'hexo'), hexo);
 
 // Server
 app.listen(app.get('port'), () => {
-	console.log('Hexo admin is running on port', app.get('port'));
+	console.log(`Hexo admin is running on port ${app.get('port')}. Entry point is ${config.root}.`);
 });

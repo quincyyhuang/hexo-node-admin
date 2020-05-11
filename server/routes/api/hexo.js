@@ -107,10 +107,10 @@ router.post('/posts/:filename', jwtMiddleware, (req, res) => {
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
     hexoRootDir = path.resolve(process.cwd(), hexoRootDir);
-  if (path.extname(req.params.filename) != '.md' || req.params.filename.includes('/'))
+  if (req.params.filename.includes('/'))
     return res.status(400).json({'msg': 'Illegal filename.'});
-  const fp = path.resolve(hexoRootDir, 'source', '_posts', req.params.filename);
-  fs.writeFile(fp, req.body, (err) => {
+  const fp = path.resolve(hexoRootDir, 'source', '_posts', req.params.filename + '.md');
+  fs.writeFile(fp, req.body.content, (err) => {
     if (err)
       return res.status(500).json({'msg': 'Failed to write to file.'});
     else
@@ -128,10 +128,10 @@ router.post('/pages/:pageName', jwtMiddleware, (req, res) => {
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
     hexoRootDir = path.resolve(process.cwd(), hexoRootDir);
-  if (path.extname(req.params.pageName).length != 0 || req.params.pageName.includes('/'))
+  if (req.params.pageName.includes('/'))
     return res.status(400).json({'msg': 'Illegal page name.'});
   const fp = path.resolve(hexoRootDir, 'source', req.params.pageName, 'index.md');
-  fs.writeFile(fp, req.body, (err) => {
+  fs.writeFile(fp, req.body.content, (err) => {
     if (err)
       return res.status(500).json({'msg': 'Failed to write to file.'});
     else
@@ -230,9 +230,7 @@ router.get('/deploy', jwtMiddleware, (req, res) => {
         console.error(err);
         return res.status(500).json({'msg': 'Failed to deploy with the specified command.'});
       }
-      return res.json({
-        stdout, stderr
-      });
+      return res.json({'msg': 'Successfully deployed hexo files.'});
     });
   }
   else if (deployType == 'script')
@@ -248,9 +246,7 @@ router.get('/deploy', jwtMiddleware, (req, res) => {
           console.error(err);
           return res.status(500).json({'msg': 'Failed to deploy with the specified script.'});
         }
-        return res.json({
-          stdout, stderr
-        });
+        return res.json({'msg': 'Successfully deployed hexo files.'});
       });
     }
     else
@@ -260,9 +256,7 @@ router.get('/deploy', jwtMiddleware, (req, res) => {
           console.error(err);
           return res.status(500).json({'msg': 'Failed to deploy with the specified script.'});
         }
-        return res.json({
-          stdout, stderr
-        });
+        return res.json({'msg': 'Successfully deployed hexo files.'});
       });
     }
   }
@@ -322,7 +316,7 @@ router.post('/upload/:type/:name', jwtMiddleware, async (req, res) => {
   }
   catch (e) {
     console.error(e);
-    return res.status(500).json({'msg': 'Failed to get stats.'});
+    return res.status(500).json({'msg': 'Failed to get hexo config.'});
   }
   if (!configYAML.post_asset_folder)
     return res.status(500).json({'msg': 'Post asset folder features is not enabled.'});
@@ -349,11 +343,22 @@ router.post('/upload/:type/:name', jwtMiddleware, async (req, res) => {
   }
   else if (req.params.type == 'page')
   {
-    var folder = path.resolve(hexoRootDir, 'source', req.params.name);
     try {
-      await fs.promises.access(folder);
+      await fs.promises.access(path.resolve(hexoRootDir, 'source', req.params.name, 'index.md'));
     } catch (e) {
+      console.error(e);
       return res.status(400).json({'msg': 'Page does not exist.'});
+    }
+    var folder = path.resolve(hexoRootDir, 'source', req.params.name, 'index');
+    try {
+      await fs.promises.access(folder)
+    }
+    catch (e) {
+      try {
+        await fs.promises.mkdir(folder);
+      } catch (e) {
+        return res.status(500).json({'msg': 'Failed to create asset folder.'});
+      }
     }
   }
   // Receive file
@@ -377,6 +382,46 @@ router.post('/upload/:type/:name', jwtMiddleware, async (req, res) => {
 
 /*
 @method  GET
+@path    '/assets/:type/:name/'
+@access  Authorized
+@desc    List all assets in post asset folder.
+*/
+router.get('/assets/:type/:name', jwtMiddleware, async (req, res) => {
+  if (!['page', 'post'].includes(req.params.type))
+    return res.status(400).json({'msg': 'Illegal type.'});
+  if (req.params.name.includes('/'))
+    return res.status(400).json({'msg': 'Illegal filename.'});
+  let hexoRootDir = req.app.get('config').hexo_dir;
+  if (!path.isAbsolute(hexoRootDir))
+    hexoRootDir = path.resolve(process.cwd(), hexoRootDir);
+  // If post_asset_folder is enabled
+  try {
+    // Get hexo config
+    var configFile = await fs.promises.readFile(path.resolve(hexoRootDir, '_config.yml'), 'utf8');
+    var configYAML = yaml.safeLoad(configFile);
+  }
+  catch (e) {
+    console.error(e);
+    return res.status(500).json({'msg': 'Failed to get hexo config.'});
+  }
+  if (!configYAML.post_asset_folder)
+    return res.status(500).json({'msg': 'Post asset folder features is not enabled.'});
+  if (req.params.type == 'post')
+    var folder = path.resolve(hexoRootDir, 'source', '_posts', req.params.name);
+  else if (req.params.type == 'page')
+    var folder = path.resolve(hexoRootDir, 'source', req.params.name, 'index');
+  fs.readdir(folder, (err, files) => {
+    if (err)
+      return res.status(500).json({'msg': 'Failed to list assets.'});
+    else {
+      files = files.filter(file => !file.startsWith('.'));  // Remove hidden files from the list
+      return res.json(files);
+    }
+  });
+});
+
+/*
+@method  GET
 @path    '/delete/:type/:name/:filename'
 @access  Authorized
 @desc    Delete post asset in post asset folder.
@@ -391,8 +436,8 @@ router.get('/delete/:type/:name/:filename', jwtMiddleware, async (req, res) => {
     hexoRootDir = path.resolve(process.cwd(), hexoRootDir);
   if (req.params.type == 'post')
     var fp = path.resolve(hexoRootDir, 'source', '_posts', req.params.name, req.params.filename);
-  else if (req.param.type == 'page')
-    var fp = path.resolve(hexoRootDir, 'source', req.params.name, req.params.filename);
+  else if (req.params.type == 'page')
+    var fp = path.resolve(hexoRootDir, 'source', req.params.name, 'index', req.params.filename);
   try {
     await fs.promises.unlink(fp);
   } catch (e) {
@@ -437,6 +482,40 @@ router.get('/delete/:type/:name', jwtMiddleware, async (req, res) => {
       return res.json({'msg': 'Successfully deleted resources.'});
     });
   }
+});
+
+/*
+@method  GET
+@path    '/new/:type/:name'
+@access  Authorized
+@desc    Create new post or page.
+*/
+router.get('/new/:type/:name', jwtMiddleware, (req, res) => {
+  if (!['post', 'page'].includes(req.params.type))
+    return res.status(400).json({'msg': 'Illegal type.'});
+  if (req.params.name.includes('/'))
+    return res.status(400).json({'msg': 'Illegal page or post name.'});
+  let hexoRootDir = req.app.get('config').hexo_dir;
+  if (!path.isAbsolute(hexoRootDir))
+    hexoRootDir = path.resolve(process.cwd(), hexoRootDir);
+  let Hexo = require('hexo');
+  let hexo = new Hexo(hexoRootDir, { silent: true });
+  hexo.init()
+    .then(() => {
+      hexo.post.create({
+        title: req.params.name,
+        layout: req.params.type
+      }, false)
+      .then(() => {
+        hexo.exit();
+        return res.json({'msg': `Successfully created ${req.params.type}.`});
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+      hexo.exit();
+      return res.status(500).json({'msg': `Failed to create new ${req.params.type}.`});
+    });
 });
 
 // Export
