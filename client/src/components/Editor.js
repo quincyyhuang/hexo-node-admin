@@ -5,6 +5,7 @@ import path from 'path';
 import MarkdownIt from 'markdown-it'
 import MdEditor from 'react-markdown-editor-lite'
 import { Redirect } from "react-router-dom";
+import { withTranslation } from 'react-i18next';
 
 // Material UI Components
 import { Box, Typography, AppBar, Toolbar, Button, ButtonGroup, Tooltip, Snackbar, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, List, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction, IconButton } from '@material-ui/core';
@@ -20,6 +21,8 @@ import pink from '@material-ui/core/colors/pink';
 // Styles
 import '../css/Editor.css';
 import 'react-markdown-editor-lite/lib/index.css';
+
+import Status from '../status';
 
 // Components
 function Alert(props) {
@@ -62,6 +65,7 @@ class Editor extends React.Component {
     super(props);
     this.state = {
       deleted: false,
+      loaded: true,
       msg: null,
       error: false,
       showMsg: false,
@@ -89,13 +93,13 @@ class Editor extends React.Component {
     if (window.innerWidth <= 768)
       this.state.showMDPreview = false
     // Set title
-    document.title = this.state.name + ' - Hexo Node Admin';
+    document.title = `${this.state.name} - ${this.props.t('Editor.title')}`;
     // Redirect if no token
     let token = localStorage.getItem('token');
     if (token)
       this.state.token = token;
     else {
-      this.state.msg = 'Please sign in.';
+      this.state.msg = this.props.t('Message.PLEASE_SIGN_IN');
       this.state.error = true;
     }
     // Set markdown parser
@@ -107,11 +111,12 @@ class Editor extends React.Component {
     window.addEventListener('resize', this.handleResize); // Handle resize
     window.addEventListener('beforeunload', this.handlePageOnClose);
     // Set editor keyboard listener
-    this.mdEditor.current.onKeyboard({
-      key: 's',
-      withKey: window.navigator.platform === 'MacIntel' ? ['metaKey'] : ['ctrlKey'],
-      callback: this.handleEditorKeyboard.bind(this)
-    });
+    if (this.mdEditor.current)
+      this.mdEditor.current.onKeyboard({
+        key: 's',
+        withKey: window.navigator.platform === 'MacIntel' ? ['metaKey'] : ['ctrlKey'],
+        callback: this.handleEditorKeyboard.bind(this)
+      });
     if (this.state.token) {
       this.loadFileContent(true);
     }
@@ -178,15 +183,16 @@ class Editor extends React.Component {
           localStorage.removeItem('token');
           this.setState({
             token: null,
-            msg: err.response.data.msg,
-            error: true
+            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
+            error: true,
+            loaded: false
           });
         }
         else {
           this.setState({
-            msg: err.response.data.msg || 'Failed to connect to server',
+            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
             error: true,
-            showMsg: true
+            loaded: false
           });
         }
       });
@@ -213,13 +219,13 @@ class Editor extends React.Component {
           localStorage.removeItem('token');
           this.setState({
             token: null,
-            msg: err.response.data.msg,
+            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
             error: true
           });
         }
         else {
           this.setState({
-            msg: err.response.data.msg || 'Failed to connect to server',
+            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
             error: true,
             showMsg: true,
             showAssetsDialog: false
@@ -245,7 +251,7 @@ class Editor extends React.Component {
       .then((res) => {
         this.setState({
           error: false,
-          msg: res.data.msg,
+          msg: this.props.t(`Message.${Status.getCodeTranslationKey(res.data.code)}`),
           showMsg: true,
           lastSavedContent: this.state.content,
           ifChanged: false
@@ -257,13 +263,13 @@ class Editor extends React.Component {
           localStorage.removeItem('token');
           this.setState({
             token: null,
-            msg: err.response.data.msg,
+            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
             error: true
           });
         }
         else {
           this.setState({
-            msg: err.response.data.msg || 'Failed to connect to server',
+            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
             error: true,
             showMsg: true
           });
@@ -284,7 +290,7 @@ class Editor extends React.Component {
       .then((res) => {
         this.setState({
           error: false,
-          msg: res.data.msg,
+          msg: this.props.t(`Message.${Status.getCodeTranslationKey(res.data.code)}`),
           deleted: true
         });
       })
@@ -294,13 +300,13 @@ class Editor extends React.Component {
           localStorage.removeItem('token');
           this.setState({
             token: null,
-            msg: err.response.data.msg,
+            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
             error: true
           });
         }
         else {
           this.setState({
-            msg: err.response.data.msg || 'Failed to connect to server',
+            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
             error: true,
             showMsg: true
           });
@@ -321,7 +327,7 @@ class Editor extends React.Component {
       .then((res) => {
         this.setState({
           error: false,
-          msg: res.data.msg,
+          msg: this.props.t(`Message.${Status.getCodeTranslationKey(res.data.code)}`),
           showMsg: true
         });
         this.loadAssets();
@@ -332,13 +338,13 @@ class Editor extends React.Component {
           localStorage.removeItem('token');
           this.setState({
             token: null,
-            msg: err.response.data.msg,
+            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
             error: true
           });
         }
         else {
           this.setState({
-            msg: err.response.data.msg || 'Failed to connect to server',
+            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
             error: true,
             showMsg: true
           });
@@ -350,14 +356,14 @@ class Editor extends React.Component {
     const files = this.fileInput.current.files;
     if (files.length === 0) {
       return this.setState({
-        msg: 'Please select at least one file.',
+        msg: this.props.t('Message.NO_FILES_SELECTED'),
         error: true,
         showMsg: true
       });
     }
     else if (files.length > 5) {
       return this.setState({
-        msg: 'Please select no more than five files.',
+        msg: this.props.t('Message.TOO_MANY_FILES_SELECTED'),
         error: true,
         showMsg: true
       });
@@ -380,7 +386,7 @@ class Editor extends React.Component {
         .then((res) => {
           this.setState({
             error: false,
-            msg: res.data.msg,
+            msg: this.props.t(`Message.${Status.getCodeTranslationKey(res.data.code)}`),
             showMsg: true,
             showUploadDialog: false
           });
@@ -391,13 +397,13 @@ class Editor extends React.Component {
             localStorage.removeItem('token');
             this.setState({
               token: null,
-              msg: err.response.data.msg,
+              msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
               error: true
             });
           }
           else {
             this.setState({
-              msg: err.response.data.msg || 'Failed to connect to server',
+              msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
               error: true,
               showMsg: true
             });
@@ -427,13 +433,15 @@ class Editor extends React.Component {
   logout() {
     localStorage.removeItem('token');
     this.setState({
-      msg: 'Signed out.',
+      msg: this.props.t('Message.SIGNED_OUT'),
       error: false,
       token: null
     });
   }
 
   render() {
+    // Setup translation function
+    const { t } = this.props;
     if (!this.state.token) {
       return (
         <Redirect to={{
@@ -445,7 +453,7 @@ class Editor extends React.Component {
         }} />
       );
     }
-    if (this.state.deleted) {
+    if (this.state.deleted || !this.state.loaded) {
       return (
         <Redirect to={{
           pathname: path.resolve(process.env.REACT_APP_ROOT, '!'),
@@ -469,31 +477,31 @@ class Editor extends React.Component {
           <Toolbar>
             <Box display={{ xs: 'block', sm: 'none' }} className="title">
               <Typography component="h1" variant="h6">
-                Hexo Node Admin: [{this.state.type}]<b>{this.state.name}{this.state.ifChanged ? '*' : null}</b>
+                Hexo Node Admin: [{this.state.type === 'post' ? t('Editor.title_post') : t('Editor.title_page')}]<b>{this.state.name}{this.state.ifChanged ? '*' : null}</b>
               </Typography>
             </Box>
             <Box display={{ xs: 'none', sm: 'block' }} className="title">
               <Typography component="h1" variant="h4">
-                Hexo Node Admin: [{this.state.type}]<b>{this.state.name}{this.state.ifChanged ? '*' : null}</b>
+                Hexo Node Admin: [{this.state.type === 'post' ? t('Editor.title_post') : t('Editor.title_page')}]<b>{this.state.name}{this.state.ifChanged ? '*' : null}</b>
               </Typography>
             </Box>
             <Box display={{ xs: 'none', sm: 'block' }}>
               <ButtonGroup size="small" variant="outlined" color="inherit">
-                <Tooltip title={`Save (${window.navigator.platform === 'MacIntel' ? '⌘' : 'Ctrl'}S)`}>
+                <Tooltip title={`${t('Editor.tooltip_save')} (${window.navigator.platform === 'MacIntel' ? '⌘' : 'Ctrl'}S)`}>
                   <Button
                     onClick={() => this.save()}
                   >
                     <SaveIcon />
                   </Button>
                 </Tooltip>
-                <Tooltip title="Upload">
+                <Tooltip title={t('Editor.tooltip_upload')}>
                   <Button
                     onClick={() => this.setOpenUploadDialog(true)}
                   >
                     <BackupIcon />
                   </Button>
                 </Tooltip>
-                <Tooltip title="List assets">
+                <Tooltip title={t('Editor.tooltip_assets')}>
                   <Button
                     onClick={() => {
                       this.loadAssets();
@@ -503,14 +511,14 @@ class Editor extends React.Component {
                     <ListAltIcon />
                   </Button>
                 </Tooltip>
-                <Tooltip title="Delete">
+                <Tooltip title={t('Editor.tooltip_delete')}>
                   <Button
                     onClick={() => this.setOpenDialog(true)}
                   >
                     <DeleteIcon />
                   </Button>
                 </Tooltip>
-                <Tooltip title="Sign out">
+                <Tooltip title={t('Editor.tooltip_signout')}>
                   <Button
                     onClick={() => this.logout()}
                   >
@@ -523,21 +531,21 @@ class Editor extends React.Component {
         </AppBar>
         <Box display={{ xs: 'block', sm: 'none' }}>
           <ButtonGroup size="small" variant="contained" color="inherit" fullWidth>
-            <Tooltip title={`Save (${window.navigator.platform === 'MacIntel' ? '⌘' : 'Ctrl'}S)`}>
+            <Tooltip title={`${t('Editor.tooltip_save')} (${window.navigator.platform === 'MacIntel' ? '⌘' : 'Ctrl'}S)`}>
               <Button
                 onClick={() => this.save()}
               >
                 <SaveIcon />
               </Button>
             </Tooltip>
-            <Tooltip title="Upload">
+            <Tooltip title={t('Editor.tooltip_upload')}>
               <Button
                 onClick={() => this.setOpenUploadDialog(true)}
               >
                 <BackupIcon />
               </Button>
             </Tooltip>
-            <Tooltip title="List assets">
+            <Tooltip title={t('Editor.tooltip_assets')}>
               <Button
                 onClick={() => {
                   this.loadAssets();
@@ -547,14 +555,14 @@ class Editor extends React.Component {
                 <ListAltIcon />
               </Button>
             </Tooltip>
-            <Tooltip title="Delete">
+            <Tooltip title={t('Editor.tooltip_delete')}>
               <Button
                 onClick={() => this.setOpenDialog(true)}
               >
                 <DeleteIcon />
               </Button>
             </Tooltip>
-            <Tooltip title="Sign out">
+            <Tooltip title={t('Editor.tooltip_signout')}>
               <Button
                 onClick={() => this.logout()}
               >
@@ -595,26 +603,26 @@ class Editor extends React.Component {
           }}
         />
         <Dialog open={this.state.showDeleteDialog} onClose={() => this.setOpenDialog(false)} fullWidth maxWidth="sm">
-          <DialogTitle>Warning!</DialogTitle>
+          <DialogTitle>{t('Editor.dialog_delete_title')}</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              This action cannot be undone. Both the file and its corresponding assets are going to be deleted.
+              {t('Editor.dialog_delete_text')}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button color="default" onClick={() => {this.setOpenDialog(false)}}>
-              Cancel
+              {t('Editor.dialog_button_cancel')}
             </Button>
             <Button color="secondary" onClick={() => {this.delete()}}>
-              DELETE
+              {t('Editor.dialog_delete_button')}
             </Button>
           </DialogActions>
         </Dialog>
         <Dialog open={this.state.showUploadDialog} onClose={() => this.setOpenUploadDialog(false)} fullWidth maxWidth="sm">
-          <DialogTitle>Upload</DialogTitle>
+          <DialogTitle>{t('Editor.dialog_upload_title')}</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Files will be uploaded to the asset folder.<br /> Files with the same name will be overwritten.
+              {t('Editor.dialog_upload_text1')}<br /> {t('Editor.dialog_upload_text2')}
             </DialogContentText>
             <FormControl fullWidth>
               <input type="file" multiple ref={this.fileInput} />
@@ -622,26 +630,26 @@ class Editor extends React.Component {
           </DialogContent>
           <DialogActions>
             <Button color="default" onClick={() => {this.setOpenUploadDialog(false)}}>
-              Cancel
+              {t('Editor.dialog_button_cancel')}
             </Button>
             <Button color="primary" onClick={() => this.upload()}>
-              UPLOAD
+              {t('Editor.dialog_upload_button')}
             </Button>
           </DialogActions>
         </Dialog>
         <Dialog open={this.state.showAssetsDialog} onClose={() => this.setOpenAssetsDialog(false)} fullWidth maxWidth="sm">
-          <DialogTitle>Assets</DialogTitle>
+          <DialogTitle>{t('Editor.dialog_assets_title')}</DialogTitle>
           <DialogContent>
             {
               this.state.assets.length === 0 &&
               <DialogContentText>
-                No files.
+                {t('Editor.dialog_assets_nofiles_text')}
               </DialogContentText>
             }
             {
               this.state.assets.length > 0 &&
               <DialogContentText>
-                Post asset usage: <br /> {'{% asset_path slug %}'} <br /> {'{% asset_img slug [title] %}'} <br /> {'{% asset_link slug [title] %}'}
+                {t('Editor.dialog_assets_helper')} <br /> {'{% asset_path slug %}'} <br /> {'{% asset_img slug [title] %}'} <br /> {'{% asset_link slug [title] %}'}
               </DialogContentText>
             }
             <List>
@@ -656,4 +664,6 @@ class Editor extends React.Component {
   }
 }
 
-export default Editor;
+const TranslatedEditor = withTranslation()(Editor);
+
+export default TranslatedEditor;

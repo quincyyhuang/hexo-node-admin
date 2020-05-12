@@ -3,13 +3,14 @@
     "port": 4001,
     "hexo_dir": "/Users/quincyhuang/Desktop/blog",
     "admin": {
+        "plain": true,
         "username": "test",
         "password": "test"
     },
     "deploy": {
-        "type": "command",
-        "script": "echo $PATH"
+        "type": "default",
+        "script": ""
     },
-    "lang": "en_US",
+    "lang": "en-US",
     "jwt_secret": "hexo-node-admin"
 }

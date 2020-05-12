@@ -1,7 +1,8 @@
 // Dependencies
 const express = require('express');
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
+const { execSync } = require('child_process');
 const auth = require('./routes/api/auth');
 const hexo = require('./routes/api/hexo');
 
@@ -18,6 +19,35 @@ try {
   process.exit();
 }
 
+// Setup local environment for front end
+console.log('Setting up the config for front end...');
+const envPath = path.resolve(__dirname, '../client/.env.local');
+try {
+  const ENV = `REACT_APP_ROOT=${config.root}\nREACT_APP_LANG=${config.lang}`;
+  fs.writeFileSync(envPath, ENV, 'utf8');
+}
+catch (e) {
+  console.error('Failed to setup front end.');
+  console.error(e);
+  process.exit();
+}
+console.log('Finished!');
+
+// Build front end from config
+console.log('Building front end from config...');
+try {
+  let result = execSync('npm run build', { cwd: path.resolve(__dirname, '../client'), windowsHide: true, encoding: 'utf8' });
+  console.log(result);
+  // Copy (overwrite) build from client to server
+  fs.copySync(path.resolve(__dirname, '../client/build'), path.resolve(__dirname, 'build'));
+}
+catch (e) {
+  console.log('Failed to build front end.');
+  console.error(e);
+  process.exit();
+}
+console.log('Finished!');
+
 app.use(express.json({ strict: false }));   // In order to accept JSON body that is only a string.
 app.use((err, req, res, next) => {
   if (err) {
@@ -31,7 +61,13 @@ app.use((err, req, res, next) => {
 app.use(path.resolve(config.root || '/', 'api', 'auth'), auth);
 app.use(path.resolve(config.root || '/', 'api', 'hexo'), hexo);
 
+// Serve front end
+app.use(express.static(path.join(__dirname, 'build')));
+app.use('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
 // Server
 app.listen(app.get('port'), () => {
-	console.log(`Hexo admin is running on port ${app.get('port')}. Entry point is ${config.root}.`);
+	console.log(`Hexo Node Admin is running on port ${app.get('port')}. Entry point is ${config.root}.`);
 });

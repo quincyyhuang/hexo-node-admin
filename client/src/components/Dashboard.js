@@ -4,6 +4,7 @@ import axios from 'axios';
 import path from 'path';
 import _ from 'lodash';
 import { Redirect } from "react-router-dom";
+import { withTranslation } from 'react-i18next';
 
 // Material UI Components
 import { Container, Typography, TextField, Button, ButtonGroup, List, ListItem, ListItemIcon, ListItemText, ListSubheader, Divider, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, InputLabel, Select, MenuItem, Snackbar, Tooltip} from '@material-ui/core';
@@ -19,6 +20,8 @@ import pink from '@material-ui/core/colors/pink';
 
 // Styles
 import '../css/Dashboard.css';
+
+import Status from '../status';
 
 function MyListItem(props) {
   return (
@@ -81,13 +84,13 @@ class Dashboard extends React.Component {
       });
     }, 500);
     // Set title
-    document.title = 'Hexo Node Admin - Dashboard';
+    document.title = this.props.t('Dashboard.title');
     // Redirect if no token
     let token = localStorage.getItem('token');
     if (token)
       this.state.token = token;
     else {
-      this.state.msg = 'Please sign in.';
+      this.state.msg = this.props.t('Message.PLEASE_SIGN_IN');
       this.state.error = true;
     }
     // Handle redirect to here error message
@@ -143,13 +146,13 @@ class Dashboard extends React.Component {
           localStorage.removeItem('token');
           this.setState({
             token: null,
-            msg: err.response.data.msg,
+            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
             error: true
           });
         }
         else {
           this.setState({
-            msg: err.response.data.msg || 'Failed to connect to server',
+            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
             error: true,
             showMsg: true
           });
@@ -160,7 +163,7 @@ class Dashboard extends React.Component {
   logout() {
     localStorage.removeItem('token');
     this.setState({
-      msg: 'Signed out.',
+      msg: this.props.t('Message.SIGNED_OUT'),
       error: false,
       token: null
     });
@@ -175,7 +178,7 @@ class Dashboard extends React.Component {
   handleSubmit() {
     if (!this.state.newFileName)
       this.setState({
-        msg: 'Empty file name.',
+        msg: this.props.t('Message.EMPTY_FILENAME'),
         error: true,
         showMsg: true
       });
@@ -190,7 +193,7 @@ class Dashboard extends React.Component {
       axios.get(path.resolve(endpoint, this.state.newFileType, this.state.newFileName), config)
         .then((res) => {
           this.setState({
-            msg: res.data.msg,
+            msg: this.props.t(`Message.${Status.getCodeTranslationKey(res.data.code)}`),
             error: false,
             showMsg: true,
             newFileModal: false
@@ -203,13 +206,13 @@ class Dashboard extends React.Component {
             localStorage.removeItem('token');
             this.setState({
               token: null,
-              msg: err.response.data.msg,
+              msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
               error: true
             });
           }
           else
             this.setState({
-              msg: err.response.data.msg || 'Failed to connect to server.',
+              msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
               error: true,
               showMsg: true,
               newFileModal: false
@@ -228,7 +231,7 @@ class Dashboard extends React.Component {
     axios.get(endpoint, config)
       .then((res) => {
         this.setState({
-          msg: res.data.msg,
+          msg: this.props.t(`Message.${Status.getCodeTranslationKey(res.data.code)}`),
           error: false,
           showMsg: true
         });
@@ -239,13 +242,13 @@ class Dashboard extends React.Component {
           localStorage.removeItem('token');
           this.setState({
             token: null,
-            msg: err.response.data.msg,
+            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
             error: true
           });
         }
         else
           this.setState({
-            msg: err.response.data.msg || 'Failed to connect to server.',
+            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
             error: true,
             showMsg: true,
           });
@@ -262,7 +265,7 @@ class Dashboard extends React.Component {
     axios.get(endpoint, config)
       .then((res) => {
         this.setState({
-          msg: res.data.msg,
+          msg: this.props.t(`Message.${Status.getCodeTranslationKey(res.data.code)}`),
           error: false,
           showMsg: true
         });
@@ -273,13 +276,13 @@ class Dashboard extends React.Component {
           localStorage.removeItem('token');
           this.setState({
             token: null,
-            msg: err.response.data.msg,
+            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
             error: true
           });
         }
         else
           this.setState({
-            msg: err.response.data.msg || 'Failed to connect to server.',
+            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
             error: true,
             showMsg: true,
           });
@@ -296,7 +299,7 @@ class Dashboard extends React.Component {
     axios.get(endpoint, config)
       .then((res) => {
         this.setState({
-          msg: res.data.msg,
+          msg: this.props.t(`Message.${Status.getCodeTranslationKey(res.data.code)}`),
           error: false,
           showMsg: true
         });
@@ -307,13 +310,13 @@ class Dashboard extends React.Component {
           localStorage.removeItem('token');
           this.setState({
             token: null,
-            msg: err.response.data.msg,
+            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
             error: true
           });
         }
         else
           this.setState({
-            msg: err.response.data.msg || 'Failed to connect to server.',
+            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
             error: true,
             showMsg: true,
           });
@@ -327,6 +330,8 @@ class Dashboard extends React.Component {
   }
 
   render() {
+    // Setup translation function
+    const { t } = this.props;
     if (!this.state.token) {
       return (
         <Redirect to={{
@@ -347,27 +352,27 @@ class Dashboard extends React.Component {
         </div>
         <div className='button-group'>
           <ButtonGroup fullWidth>
-            <Tooltip title="New">
+            <Tooltip title={t('Dashboard.tooltip_new')}>
               <Button variant="outlined" color='secondary' onClick={() => this.setOpenDialog(true)}>
                 <AddCircleIcon />
               </Button>
             </Tooltip>
-            <Tooltip title="Generate">
+            <Tooltip title={t('Dashboard.tooltip_generate')}>
               <Button variant="outlined" color='secondary' onClick={() => this.generate()}>
                 <BuildIcon />
               </Button>
             </Tooltip>
-            <Tooltip title="Deploy">
+            <Tooltip title={t('Dashboard.tooltip_deploy')}>
               <Button variant="outlined" color="secondary" onClick={() => this.deploy()}>
                 <PublishIcon />
               </Button>
             </Tooltip>
-            <Tooltip title="Clean">
+            <Tooltip title={t('Dashboard.tooltip_clean')}>
               <Button variant="outlined" color="secondary" onClick={() => this.clean()}>
                 <DeleteSweepIcon />
               </Button>
             </Tooltip>
-            <Tooltip title="Sign out">
+            <Tooltip title={t('Dashboard.tooltip_signout')}>
               <Button variant="outlined" color="secondary" onClick={() => this.logout()}>
                 <ExitToAppIcon />
               </Button>
@@ -377,7 +382,7 @@ class Dashboard extends React.Component {
         <div className="search-box">
           <TextField
             margin="dense"
-            label="Search"
+            label={t('Dashboard.label_search')}
             type="text"
             fullWidth
             color="secondary"
@@ -393,11 +398,11 @@ class Dashboard extends React.Component {
           dense
           subheader={
             <ListSubheader component="div">
-              Posts - {this.filteredPosts.length}
+              {t('Dashboard.listsubheader_posts')} - {this.filteredPosts.length}
               {
                 this.filteredPosts.length === 0 && 
                 <Typography component="h6">
-                  No posts.
+                  {t('Dashboard.listsubheader_text_noposts')}
                 </Typography>
               }
             </ListSubheader>
@@ -420,11 +425,11 @@ class Dashboard extends React.Component {
           dense
           subheader={
             <ListSubheader component="div">
-              Pages - {this.filteredPages.length}
+              {t('Dashboard.listsubheader_pages')} - {this.filteredPages.length}
               {
-                this.filteredPosts.length === 0 && 
+                this.filteredPages.length === 0 && 
                 <Typography component="h6">
-                  No pages.
+                  {t('Dashboard.listsubheader_text_nopages')}
                 </Typography>
               }
             </ListSubheader>
@@ -444,14 +449,14 @@ class Dashboard extends React.Component {
         {/* 
         Modal dialog
         */}
-        <Dialog open={this.state.newFileModal} onClose={() => {this.setState({newFileModal: false})}}>
-          <DialogTitle>Create a new file</DialogTitle>
+        <Dialog open={this.state.newFileModal} fullWidth maxWidth="sm" onClose={() => {this.setState({newFileModal: false})}}>
+          <DialogTitle>{t('Dashboard.dialog_new_title')}</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Please select file type and enter file name.
+              {t('Dashboard.dialog_new_helper')}
             </DialogContentText>
             <FormControl required fullWidth>
-              <InputLabel id="file-type">Type</InputLabel>
+              <InputLabel id="file-type">{t('Dashboard.dialog_new_label_type')}</InputLabel>
               <Select
                 labelId="file-type"
                 value={this.state.newFileType}
@@ -463,13 +468,13 @@ class Dashboard extends React.Component {
                   });
                 }}
               >
-                <MenuItem value={'post'}>Post</MenuItem>
-                <MenuItem value={'page'}>Page</MenuItem>
+                <MenuItem value={'post'}>{t('Dashboard.dialog_menuitem_post')}</MenuItem>
+                <MenuItem value={'page'}>{t('Dashboard.dialog_menuitem_page')}</MenuItem>
               </Select>
               <TextField
                 autoFocus
                 margin="dense"
-                label="Name"
+                label={t('Dashboard.dialog_new_label_name')}
                 type="text"
                 fullWidth
                 color="secondary"
@@ -483,11 +488,11 @@ class Dashboard extends React.Component {
             </FormControl>
           </DialogContent>
           <DialogActions>
-            <Button color="secondary" onClick={() => {this.setOpenDialog(false)}}>
-              Cancel
+            <Button onClick={() => {this.setOpenDialog(false)}}>
+              {t('Dashboard.dialog_button_cancel')}
             </Button>
             <Button color="secondary" onClick={() => {this.handleSubmit()}}>
-              OK
+              {t('Dashboard.dialog_new_button_ok')}
             </Button>
           </DialogActions>
         </Dialog>
@@ -506,4 +511,6 @@ class Dashboard extends React.Component {
   }
 }
 
-export default Dashboard;
+const TranslatedDashboard = withTranslation()(Dashboard);
+
+export default TranslatedDashboard;

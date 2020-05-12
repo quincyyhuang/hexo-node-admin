@@ -3,6 +3,7 @@ import React from 'react';
 import axios from 'axios';
 import path from 'path';
 import { Redirect } from "react-router-dom";
+import { withTranslation } from 'react-i18next';
 
 // Material UI Components
 import { styled } from '@material-ui/core/styles';
@@ -10,6 +11,8 @@ import { Container, Avatar, Typography, TextField, Button, Box, Link, Snackbar }
 import MuiAlert from '@material-ui/lab/Alert';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import pink from '@material-ui/core/colors/pink';
+
+import Status from '../status';
 
 /* CSS */
 const SDiv = styled('div')({
@@ -58,7 +61,6 @@ function LoginMessage(props) {
 class Login extends React.Component {
   constructor(props) {
     super(props);
-    console.log(process.env.REACT_APP_ROOT);
     this.state = {
       username: null,
       password: null,
@@ -77,7 +79,7 @@ class Login extends React.Component {
       this.state.showMsg = true;
     }
     // Set title
-    document.title = 'Hexo Node Admin - Login';
+    document.title = this.props.t('Login.title');
   }
 
   login() {
@@ -91,7 +93,7 @@ class Login extends React.Component {
         localStorage.setItem('token', token);
         this.setState({
           error: false,
-          msg: 'Login successful.',
+          msg: this.props.t('Message.AUTH_LOGGED_IN'),
           showMsg: true,
           isRedirected: false
         });
@@ -99,7 +101,7 @@ class Login extends React.Component {
       .catch((err) => {
         this.setState({
           error: true,
-          msg: err.response.data.msg || 'Failed to connect to the server.',
+          msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
           showMsg: true,
           isRedirected: false
         });
@@ -107,6 +109,8 @@ class Login extends React.Component {
   }
 
   render() {
+    // Setup translation function
+    const { t } = this.props;
     if (this.state.redirect === true || this.state.token)
       return <Redirect to={path.resolve(process.env.REACT_APP_ROOT, '!')} />
     else
@@ -144,7 +148,7 @@ class Login extends React.Component {
             required
             fullWidth
             id="username"
-            label="Username"
+            label={t('Login.label_username')}
             name="username"
             autoFocus
             onChange={(event) => {
@@ -159,7 +163,7 @@ class Login extends React.Component {
             required
             fullWidth
             name="password"
-            label="Password"
+            label={t('Login.label_password')}
             type="password"
             id="password"
             autoComplete="current-password"
@@ -183,7 +187,7 @@ class Login extends React.Component {
               this.login();
             }}
           >
-            Sign In
+            {t('Login.button_signin')}
           </Button>
           </form>
         </SDiv>
@@ -195,4 +199,6 @@ class Login extends React.Component {
   }
 }
 
-export default Login;
+const TranslatedLogin = withTranslation()(Login);
+
+export default TranslatedLogin;
