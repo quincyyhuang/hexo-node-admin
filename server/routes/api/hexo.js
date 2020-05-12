@@ -19,7 +19,7 @@ const Status = require('./status');
 router.get('/posts/all', jwtMiddleware, (req, res) => {
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
-    hexoRootDir = path.resolve(__dirname, hexoRootDir);
+    hexoRootDir = path.resolve(__dirname, '../../../', hexoRootDir);
   fs.readdir(path.resolve(hexoRootDir, 'source', '_posts'), (err, files) => {
     if (err)
       return res.status(500).json({'code': Status.HEXO_FAILED_TO_GET_POSTS});
@@ -41,7 +41,7 @@ router.get('/posts/all', jwtMiddleware, (req, res) => {
 router.get('/posts/:filename', jwtMiddleware, (req, res) => {
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
-    hexoRootDir = path.resolve(__dirname, hexoRootDir);
+    hexoRootDir = path.resolve(__dirname, '../../../', hexoRootDir);
   if (req.params.filename.includes('/'))
     return res.status(400).json({'code': Status.HEXO_ILLEGAL_FILENAME});
   const fp = path.resolve(hexoRootDir, 'source', '_posts', req.params.filename + '.md');
@@ -63,7 +63,7 @@ router.get('/posts/:filename', jwtMiddleware, (req, res) => {
 router.get('/pages/all', jwtMiddleware, (req, res) => {
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
-    hexoRootDir = path.resolve(__dirname, hexoRootDir);
+    hexoRootDir = path.resolve(__dirname, '../../../', hexoRootDir);
   fs.readdir(path.resolve(hexoRootDir, 'source'), { withFileTypes: true }, (err, files) => {
     if (err)
       return res.status(500).json({'code': Status.HEXO_FAILED_TO_GET_PAGES});
@@ -85,7 +85,7 @@ router.get('/pages/all', jwtMiddleware, (req, res) => {
 router.get('/pages/:pageName', jwtMiddleware, (req, res) => {
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
-    hexoRootDir = path.resolve(__dirname, hexoRootDir);
+    hexoRootDir = path.resolve(__dirname, '../../../', hexoRootDir);
   if (path.extname(req.params.pageName).length != 0 || req.params.pageName.includes('/'))
     return res.status(400).json({'code': Status.HEXO_ILLEGAL_FILENAME});
   const fp = path.resolve(hexoRootDir, 'source', req.params.pageName, 'index.md');
@@ -106,7 +106,7 @@ router.get('/pages/:pageName', jwtMiddleware, (req, res) => {
 router.post('/posts/:filename', jwtMiddleware, (req, res) => {
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
-    hexoRootDir = path.resolve(__dirname, hexoRootDir);
+    hexoRootDir = path.resolve(__dirname, '../../../', hexoRootDir);
   if (req.params.filename.includes('/'))
     return res.status(400).json({'code': Status.HEXO_ILLEGAL_FILENAME});
   const fp = path.resolve(hexoRootDir, 'source', '_posts', req.params.filename + '.md');
@@ -127,7 +127,7 @@ router.post('/posts/:filename', jwtMiddleware, (req, res) => {
 router.post('/pages/:pageName', jwtMiddleware, (req, res) => {
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
-    hexoRootDir = path.resolve(__dirname, hexoRootDir);
+    hexoRootDir = path.resolve(__dirname, '../../../', hexoRootDir);
   if (req.params.pageName.includes('/'))
     return res.status(400).json({'code': Status.HEXO_ILLEGAL_FILENAME});
   const fp = path.resolve(hexoRootDir, 'source', req.params.pageName, 'index.md');
@@ -148,7 +148,7 @@ router.post('/pages/:pageName', jwtMiddleware, (req, res) => {
 router.get('/generate', jwtMiddleware, (req, res) => {
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
-    hexoRootDir = path.resolve(__dirname, hexoRootDir);
+    hexoRootDir = path.resolve(__dirname, '../../../', hexoRootDir);
   var Hexo = require('hexo');
   var hexo = new Hexo(hexoRootDir, { silent: true });
   hexo.init()
@@ -175,7 +175,7 @@ router.get('/generate', jwtMiddleware, (req, res) => {
 router.get('/clean', jwtMiddleware, (req, res) => {
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
-    hexoRootDir = path.resolve(__dirname, hexoRootDir);
+    hexoRootDir = path.resolve(__dirname, '../../../', hexoRootDir);
   var Hexo = require('hexo');
   var hexo = new Hexo(hexoRootDir, { silent: true });
   hexo.init()
@@ -202,7 +202,7 @@ router.get('/clean', jwtMiddleware, (req, res) => {
 router.get('/deploy', jwtMiddleware, (req, res) => {
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
-    hexoRootDir = path.resolve(__dirname, hexoRootDir);
+    hexoRootDir = path.resolve(__dirname, '../../../', hexoRootDir);
   const deployType = req.app.get('config').deploy.type;
   if (deployType == 'default')
   {
@@ -273,7 +273,7 @@ router.get('/deploy', jwtMiddleware, (req, res) => {
 router.get('/stats', jwtMiddleware, async (req, res) => {
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
-    hexoRootDir = path.resolve(__dirname, hexoRootDir);
+    hexoRootDir = path.resolve(__dirname, '../../../', hexoRootDir);
   try {
     // get # of posts and pages
     let posts = await fs.promises.readdir(path.resolve(hexoRootDir, 'source', '_posts'));
@@ -308,7 +308,7 @@ router.post('/upload/:type/:name', jwtMiddleware, async (req, res) => {
     return res.status(400).json({'code': Status.HEXO_ILLEGAL_FILE_TYPE});
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
-    hexoRootDir = path.resolve(__dirname, hexoRootDir);
+    hexoRootDir = path.resolve(__dirname, '../../../', hexoRootDir);
   try {
     // Get hexo config
     var configFile = await fs.promises.readFile(path.resolve(hexoRootDir, '_config.yml'), 'utf8');
@@ -393,7 +393,7 @@ router.get('/assets/:type/:name', jwtMiddleware, async (req, res) => {
     return res.status(400).json({'code': Status.HEXO_ILLEGAL_FILENAME});
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
-    hexoRootDir = path.resolve(__dirname, hexoRootDir);
+    hexoRootDir = path.resolve(__dirname, '../../../', hexoRootDir);
   // If post_asset_folder is enabled
   try {
     // Get hexo config
@@ -433,7 +433,7 @@ router.get('/delete/:type/:name/:filename', jwtMiddleware, async (req, res) => {
     return res.status(400).json({'code': Status.HEXO_ILLEGAL_FILENAME});
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
-    hexoRootDir = path.resolve(__dirname, hexoRootDir);
+    hexoRootDir = path.resolve(__dirname, '../../../', hexoRootDir);
   if (req.params.type == 'post')
     var fp = path.resolve(hexoRootDir, 'source', '_posts', req.params.name, req.params.filename);
   else if (req.params.type == 'page')
@@ -459,7 +459,7 @@ router.get('/delete/:type/:name', jwtMiddleware, async (req, res) => {
     return res.status(400).json({'code': Status.HEXO_ILLEGAL_FILENAME});
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
-    hexoRootDir = path.resolve(__dirname, hexoRootDir);
+    hexoRootDir = path.resolve(__dirname, '../../../', hexoRootDir);
   if (req.params.type == 'post') {
     let fp = path.resolve(hexoRootDir, 'source', '_posts', req.params.name + '.md');
     let folderp = path.resolve(hexoRootDir, 'source', '_posts', req.params.name);
@@ -497,7 +497,7 @@ router.get('/new/:type/:name', jwtMiddleware, (req, res) => {
     return res.status(400).json({'code': Status.HEXO_ILLEGAL_FILENAME});
   let hexoRootDir = req.app.get('config').hexo_dir;
   if (!path.isAbsolute(hexoRootDir))
-    hexoRootDir = path.resolve(__dirname, hexoRootDir);
+    hexoRootDir = path.resolve(__dirname, '../../../', hexoRootDir);
   let Hexo = require('hexo');
   let hexo = new Hexo(hexoRootDir, { silent: true });
   hexo.init()

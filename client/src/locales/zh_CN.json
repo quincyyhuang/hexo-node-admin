@@ -53,7 +53,7 @@
     "FAILED_TO_CONNECT_SERVER": "无法连接服务器。",
     "EMPTY_FILENAME": "文件名为空。",
     "NO_FILES_SELECTED": "请选择至少一个文件。",
-    "TOO_MANY_FILES_SELECTED": "请选择不超过五个文件",
+    "TOO_MANY_FILES_SELECTED": "请选择不超过五个文件。",
     "AUTH_LOGGED_IN": "登录成功。",
     "AUTH_MISSING_CREDENTIALS": "请输入用户名和密码。",
     "AUTH_INTERNAL_ERROR": "内部服务器验证错误。",
@@ -83,7 +83,7 @@
     "HEXO_GENERATED": "生成成功。",
     "HEXO_CLEANED": "清理成功。",
     "HEXO_DEPLOYED": "部署成功。",
-    "HEXO_UPLOADED": "上传成功",
+    "HEXO_UPLOADED": "上传成功。",
     "HEXO_DELETED": "删除成功。",
     "HEXO_CREATED": "创建文件成功。"
   }

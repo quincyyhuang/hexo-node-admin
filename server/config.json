@@ -1,7 +1,8 @@
 {
     "root": "/",
+    "host": "localhost",
     "port": 4001,
-    "hexo_dir": "/Users/quincyhuang/Desktop/blog",
+    "hexo_dir": "",
     "admin": {
         "plain": true,
         "username": "test",
@@ -12,5 +13,5 @@
         "script": ""
     },
     "lang": "en-US",
-    "jwt_secret": "hexo-node-admin"
+    "jwt_secret": ""
 }

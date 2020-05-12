@@ -13,7 +13,10 @@ const app = express();
 try {
   var config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
   app.set('port', (config.port || 4001));
+  app.set('host', (config.host || 'localhost'));
   app.set('config', config);
+  // Create random jwt_secret if not set
+  config.jwt_secret = config.jwt_secret || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 } catch (e) {
   console.log('Bad config file.');
   process.exit();
@@ -68,6 +71,6 @@ app.use('/*', (req, res) => {
 });
 
 // Server
-app.listen(app.get('port'), () => {
+app.listen(app.get('port'), app.get('host'), () => {
 	console.log(`Hexo Node Admin is running on port ${app.get('port')}. Entry point is ${config.root}.`);
 });

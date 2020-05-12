@@ -4,6 +4,7 @@ import { initReactI18next } from "react-i18next";
 
 import en_US from './locales/en_US.json';
 import zh_CN from './locales/zh_CN.json';
+import zh_TW from './locales/zh_TW.json';
 
 // the translations
 // (tip move them in a JSON file and import them)
@@ -16,6 +17,9 @@ const resources = {
   },
   'zh-CN': {
     translation: zh_CN
+  },
+  'zh-TW': {
+    translation: zh_TW
   }
 };
 
