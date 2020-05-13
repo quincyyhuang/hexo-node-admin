@@ -170,11 +170,11 @@ class Editor extends React.Component {
     axios.get(end_point, config)
       .then((res) => {
         this.setState({
-          content: res.data
+          content: res.data.replace(/\r\n/g, '\n')  // Change CRLF to LF for Windows
         });
         if (initial)
           this.setState({
-            lastSavedContent: res.data
+            lastSavedContent: res.data.replace(/\r\n/g, '\n')
           });
       })
       .catch((err) => {

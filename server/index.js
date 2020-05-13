@@ -2,6 +2,7 @@
 const express = require('express');
 const fs = require('fs-extra');
 const path = require('path');
+const yaml = require('js-yaml');
 const { execSync } = require('child_process');
 const auth = require('./routes/api/auth');
 const hexo = require('./routes/api/hexo');
@@ -14,11 +15,31 @@ try {
   var config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
   app.set('port', (config.port || 4001));
   app.set('host', (config.host || 'localhost'));
-  app.set('config', config);
+  // Get hexo root dir right
+  if (!path.isAbsolute(config.hexo_dir))
+    config.hexo_dir = path.normalize(path.resolve(__dirname, '../', config.hexo_dir));
   // Create random jwt_secret if not set
   config.jwt_secret = config.jwt_secret || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  // Check if blog exists
+  const yamlFp = path.resolve(config.hexo_dir, '_config.yml');
+  if (!fs.existsSync(yamlFp)) {
+    console.error('Hexo config file does not exist. Please check if hexo_dir is set correctly.');
+    process.exit();
+  }
+  else {
+    try {
+      var yamlConfig = fs.readFileSync(yamlFp, 'utf8');
+      yamlConfig = yaml.safeLoad(yamlConfig);
+      config.yaml = yamlConfig;
+    } catch (e) {
+      console.error('Cannot open Hexo config file.');
+      process.exit();
+    }
+  }
+  // Set app-wise config
+  app.set('config', config);
 } catch (e) {
-  console.log('Bad config file.');
+  console.error('Bad config file.');
   process.exit();
 }
 
@@ -51,18 +72,18 @@ catch (e) {
 }
 console.log('Finished!');
 
-app.use(express.json({ strict: false }));   // In order to accept JSON body that is only a string.
-app.use((err, req, res, next) => {
+// Check if request body has error
+function JSONCheck(err, req, res, next) {
   if (err) {
     console.log(err);
-    return res.status(400).json({'msg': 'Bad request.'});
+    return res.sendStatus(400);
   }
   else
     next();
-});
+}
 
-app.use(path.resolve(config.root || '/', 'api', 'auth'), auth);
-app.use(path.resolve(config.root || '/', 'api', 'hexo'), hexo);
+app.use(path.posix.resolve(config.root || '/', 'api', 'auth'), express.json({ strict: false }), JSONCheck, auth); // strict = false to make it accept plain string as valid JSON
+app.use(path.posix.resolve(config.root || '/', 'api', 'hexo'), express.json({ strict: false }), JSONCheck, hexo);
 
 // Serve front end
 app.use(express.static(path.join(__dirname, 'build')));
