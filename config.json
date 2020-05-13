@@ -1,14 +1,17 @@
 {
+    "root": "/",
+    "host": "localhost",
     "port": 4001,
     "hexo_dir": "",
     "admin": {
+        "plain": true,
         "username": "test",
-        "password": "test",
-        "plain": true
+        "password": "test"
     },
     "deploy": {
         "type": "default",
         "script": ""
     },
-    "lang": "en_US"
+    "lang": "en-US",
+    "jwt_secret": ""
 }

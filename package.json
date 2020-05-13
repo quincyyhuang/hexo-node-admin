@@ -1,14 +1,17 @@
 {
   "name": "hexo-node-admin",
-  "version": "0.1.5",
+  "version": "1.0.0",
   "description": "A Hexo management tool with UI designed to make it easier for you to compose.",
   "main": "index.js",
   "engineStrict": true,
   "engines": {
-    "node": ">=8.10.0"
+    "node": ">=10.13"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "react-start": "react-scripts start",
+    "build": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
+    "debug-api": "cross-env DEBUG_API=true node index.js"
   },
   "repository": {
     "type": "git",
@@ -22,14 +25,46 @@
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "body-parser": "^1.19.0",
     "express": "^4.17.1",
-    "express-session": "^1.17.1",
     "formidable": "^1.2.2",
+    "fs-extra": "^9.0.0",
     "hexo": "^4.2.0",
     "js-yaml": "^3.13.1",
-    "pug": "^2.0.4",
-    "rmdir": "^1.2.0",
-    "session-file-store": "^1.4.0"
+    "jsonwebtoken": "^8.5.1",
+    "@material-ui/core": "^4.9.13",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.52",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.5.0",
+    "@testing-library/user-event": "^7.2.1",
+    "axios": "^0.19.2",
+    "i18next": "^19.4.4",
+    "lodash": "^4.17.15",
+    "markdown-it": "^10.0.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-i18next": "^11.4.0",
+    "react-markdown-editor-lite": "^1.1.2",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "3.4.1"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "proxy": "http://localhost:4001",
+  "devDependencies": {
+    "cross-env": "^7.0.2"
   }
 }

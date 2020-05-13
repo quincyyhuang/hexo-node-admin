@@ -1,47 +1,104 @@
 // Dependencies
-var express = require('express')
-var router = require("./modules/router")
-var bodyParser = require('body-parser')
-var session = require('express-session')
-var FileStore = require('session-file-store')(session)
-var loginMiddleware = require('./modules/login-middleware')
-const fs = require('fs')
-const path = require('path')
+const express = require('express');
+const fs = require('fs-extra');
+const path = require('path');
+const yaml = require('js-yaml');
+const { execSync } = require('child_process');
+const auth = require('./routes/api/auth');
+const hexo = require('./routes/api/hexo');
 
-// Global Variables
-var app = express()
+// Global variables
+const app = express();
 
 // Settings
 try {
-    var config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'))
+  var config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
+  app.set('port', (config.port || 4001));
+  app.set('host', (config.host || 'localhost'));
+  config.deploy.type = config.deploy.type || 'default';
+  // Get hexo root dir right
+  if (!path.isAbsolute(config.hexo_dir))
+    config.hexo_dir = path.normalize(path.resolve(__dirname, config.hexo_dir));
+  // Create random jwt_secret if not set
+  config.jwt_secret = config.jwt_secret || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  // Check if blog exists
+  const yamlFp = path.resolve(config.hexo_dir, '_config.yml');
+  if (!fs.existsSync(yamlFp)) {
+    console.error('Hexo config file does not exist. Please check if hexo_dir is set correctly.');
+    process.exit();
+  }
+  else {
+    try {
+      var yamlConfig = fs.readFileSync(yamlFp, 'utf8');
+      yamlConfig = yaml.safeLoad(yamlConfig);
+      config.yaml = yamlConfig;
+    } catch (e) {
+      console.error('Cannot open Hexo config file.');
+      process.exit();
+    }
+  }
+  // Set app-wise config
+  app.set('config', config);
 } catch (e) {
-    console.log('Bad config file.')
-    process.exit()
+  console.error('Bad config file.');
+  process.exit();
 }
-app.set('port', (config.port || 4001))
-app.set('view engine', 'pug')
-app.use('/static', express.static(__dirname + '/static'))
-app.listen(app.get('port'), function() {
-	console.log('Hexo admin is running on port', app.get('port'))
-})
 
-// Body parser
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+// Setup local environment for front end
+console.log('Setting up the config for front end...');
+const envPath = path.resolve(__dirname, '.env.local');
+try {
+  const ENV = `REACT_APP_ROOT=${config.root}\nREACT_APP_LANG=${config.lang}`;
+  fs.writeFileSync(envPath, ENV, 'utf8');
+}
+catch (e) {
+  console.error('Failed to setup front end.');
+  console.error(e);
+  process.exit();
+}
+console.log('Finished!');
 
-// Use the session middleware
-app.use(session({
-    store: new FileStore({
-        ttl: 24*60*60,  // Sesstion ttl a day
-        logFn: () => {} // Suppress the session file log message
-    }),
-	secret: 'hexo-node-admin',
-	resave: true,
-    saveUninitialized: false
-}))
+// Build front end from config
+if (!process.env.DEBUG_API)
+{
+  console.log('Building front end from config...');
+  try {
+    let result = execSync('npm run build', { cwd: path.resolve(__dirname), windowsHide: true, encoding: 'utf8' });
+    console.log(result);
+  }
+  catch (e) {
+    console.error('Failed to build front end.');
+    console.error(e);
+    process.exit();
+  }
+  console.log('Finished!');
+}
+else
+  console.log('Skipped building front end.');
 
-// Login Middleware
-app.use(loginMiddleware)
+// Check if request body has error
+function JSONCheck(err, req, res, next) {
+  if (err) {
+    console.error(err);
+    return res.sendStatus(400);
+  }
+  else
+    next();
+}
 
-// Router
-app.use('/', router)
+app.use(path.posix.resolve(config.root || '/', 'api', 'auth'), express.json({ strict: false }), JSONCheck, auth); // strict = false to make it accept plain string as valid JSON
+app.use(path.posix.resolve(config.root || '/', 'api', 'hexo'), express.json({ strict: false }), JSONCheck, hexo);
+
+// Serve front end
+if (!process.env.DEBUG_API)
+{
+  app.use(express.static(path.join(__dirname, 'build')));
+  app.use('/*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  });
+}
+
+// Server
+app.listen(app.get('port'), app.get('host'), () => {
+	console.log(`Hexo Node Admin is running on port ${app.get('port')}. Entry point is ${config.root}.`);
+});
