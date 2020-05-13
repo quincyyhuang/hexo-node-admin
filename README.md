@@ -84,17 +84,17 @@ Change `config.json` to match your needs.
 
 |     config     |                                                                      value                                                                     |
 |:--------------:|:----------------------------------------------------------------------------------------------------------------------------------------------:|
-|      root      |                          The root path for mounting the admin. Default to '/'. Can be set to subdirectory as '/admin'.                         |
-|      host      |                              The address to listen on. Default to 'localhost'. To listen on all, set to '0.0.0.0'.                             |
-|      port      |                                                     The port to listen on. Default to 4001.                                                    |
-|    hexo_dir    |              Path to your hexo blog root folder. If using relative path, the path will be relative to the 'hexo-node-admin' folder.             |
-|   admin.plain  |                               If using plain text password. Default to true. Set to false to use hashed password.                              |
-| admin.username |                                                               Username for login.                                                              |
-| admin.password |      Password for login. If admin.plain == true, this is plaint text password.If admin.plain == false, this needs to be a bcrypt-ed hash.      |
-|   deploy.type  | Type for deployment. Default to 'default', this runs `hexo deploy`. Set to 'command' to run a single command. Set to 'script' to run a script. |
-|  deploy.script |        If deploy.type == 'command', this is the one line command to execute. If deploy.type == 'script', this is the path to the script.       |
-|      lang      |                           Language to use. Default to 'en-US'. All available options please see localization section.                          |
-|   jwt_secret   |   JSON web token secret. Default to empty, this will make the admin generate a random secret on every start. You can set it to any string.  |
+|      `root`      |                          The root path for mounting the admin. Default to `'/'`. Can be set to subdirectory as `'/admin'`.                         |
+|      `host`      |                              The address to listen on. Default to `'localhost'`. To listen on all, set to `'0.0.0.0'`.                             |
+|      `port`      |                                                     The port to listen on. Default to `4001`.                                                    |
+|    `hexo_dir`    |              Path to your hexo blog root folder. If using relative path, the path will be relative to the 'hexo-node-admin' folder.             |
+|   `admin.plain`  |                               If using plain text password. Default to `true`. Set to `false` to use hashed password.                              |
+| `admin.username` |                                                               Username for login.                                                              |
+| `admin.password` |      Password for login. If `admin.plain == true`, this is plaint text password.If `admin.plain == false`, this needs to be a bcrypt-ed hash.      |
+|   `deploy.type`  | Type for deployment. Default to `'default'`, this runs `hexo deploy`. Set to `'command'` to run a single command. Set to `'script'` to run a script. |
+|  `deploy.script` |        If `deploy.type == 'command'`, this is the one line command to execute. If `deploy.type == 'script'`, this is the path to the script.       |
+|      `lang`      |                           Language to use. Default to `'en-US'`. All available options please see localization section.                          |
+|   `jwt_secret`   |   JSON web token secret. Default to empty, this will make the admin generate a random secret on every start. You can set it to any string.  |
 
 # Credits
 
