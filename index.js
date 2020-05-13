@@ -15,9 +15,10 @@ try {
   var config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
   app.set('port', (config.port || 4001));
   app.set('host', (config.host || 'localhost'));
+  config.deploy.type = config.deploy.type || 'default';
   // Get hexo root dir right
   if (!path.isAbsolute(config.hexo_dir))
-    config.hexo_dir = path.normalize(path.resolve(__dirname, '../', config.hexo_dir));
+    config.hexo_dir = path.normalize(path.resolve(__dirname, config.hexo_dir));
   // Create random jwt_secret if not set
   config.jwt_secret = config.jwt_secret || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   // Check if blog exists
@@ -45,7 +46,7 @@ try {
 
 // Setup local environment for front end
 console.log('Setting up the config for front end...');
-const envPath = path.resolve(__dirname, '../client/.env.local');
+const envPath = path.resolve(__dirname, '.env.local');
 try {
   const ENV = `REACT_APP_ROOT=${config.root}\nREACT_APP_LANG=${config.lang}`;
   fs.writeFileSync(envPath, ENV, 'utf8');
@@ -58,24 +59,27 @@ catch (e) {
 console.log('Finished!');
 
 // Build front end from config
-console.log('Building front end from config...');
-try {
-  let result = execSync('npm run build', { cwd: path.resolve(__dirname, '../client'), windowsHide: true, encoding: 'utf8' });
-  console.log(result);
-  // Copy (overwrite) build from client to server
-  fs.copySync(path.resolve(__dirname, '../client/build'), path.resolve(__dirname, 'build'));
+if (!process.env.DEBUG_API)
+{
+  console.log('Building front end from config...');
+  try {
+    let result = execSync('npm run build', { cwd: path.resolve(__dirname), windowsHide: true, encoding: 'utf8' });
+    console.log(result);
+  }
+  catch (e) {
+    console.error('Failed to build front end.');
+    console.error(e);
+    process.exit();
+  }
+  console.log('Finished!');
 }
-catch (e) {
-  console.log('Failed to build front end.');
-  console.error(e);
-  process.exit();
-}
-console.log('Finished!');
+else
+  console.log('Skipped building front end.');
 
 // Check if request body has error
 function JSONCheck(err, req, res, next) {
   if (err) {
-    console.log(err);
+    console.error(err);
     return res.sendStatus(400);
   }
   else
@@ -86,10 +90,13 @@ app.use(path.posix.resolve(config.root || '/', 'api', 'auth'), express.json({ st
 app.use(path.posix.resolve(config.root || '/', 'api', 'hexo'), express.json({ strict: false }), JSONCheck, hexo);
 
 // Serve front end
-app.use(express.static(path.join(__dirname, 'build')));
-app.use('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
+if (!process.env.DEBUG_API)
+{
+  app.use(express.static(path.join(__dirname, 'build')));
+  app.use('/*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  });
+}
 
 // Server
 app.listen(app.get('port'), app.get('host'), () => {

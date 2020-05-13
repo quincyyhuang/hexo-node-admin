@@ -180,7 +180,7 @@ router.get('/clean', jwtMiddleware, (req, res) => {
 @method  GET
 @path    '/deploy'
 @access  Authorized
-@desc    Run hexo deploy or custom deplot scripts.
+@desc    Run hexo deploy or custom deploy scripts.
 */
 router.get('/deploy', jwtMiddleware, (req, res) => {
   let hexoRootDir = req.app.get('config').hexo_dir;
@@ -222,6 +222,7 @@ router.get('/deploy', jwtMiddleware, (req, res) => {
     if (process.platform == 'win32')
     {
       // On Windows
+      scriptPath = scriptPath.replace(/ /g, '^ ');
       exec(scriptPath, { cwd: hexoRootDir }, (err, stdout, stderr) => {
         if (err) {
           console.error(err);
@@ -364,17 +365,29 @@ router.get('/assets/:type/:name', jwtMiddleware, async (req, res) => {
   // If post_asset_folder is enabled
   if (!configYAML.post_asset_folder)
     return res.status(500).json({'code': Status.HEXO_POST_ASSETS_DISABLED});
+  let folder;
   if (req.params.type == 'post')
-    var folder = path.resolve(hexoRootDir, 'source', '_posts', req.params.name);
+    folder = path.resolve(hexoRootDir, 'source', '_posts', req.params.name);
   else if (req.params.type == 'page')
-    var folder = path.resolve(hexoRootDir, 'source', req.params.name, 'index');
-  fs.readdir(folder, (err, files) => {
+    folder = path.resolve(hexoRootDir, 'source', req.params.name, 'index');
+  // If folder does not exist, create folder
+  fs.access(folder, (err) => {
     if (err)
-      return res.status(500).json({'code': Status.HEXO_FAILED_TO_GET_ASSETS});
-    else {
-      files = files.filter(file => !file.startsWith('.'));  // Remove hidden files from the list
-      return res.json(files);
-    }
+      fs.mkdir(folder, (err) => {
+        if (err)
+          return res.status(500).json({'code': Status.HEXO_FAILED_TO_CREATE_ASSET_FOLDER});
+        else
+          return res.json([]);  // We just created the folder
+      });
+    else
+      fs.readdir(folder, (err, files) => {
+        if (err)
+          return res.status(500).json({'code': Status.HEXO_FAILED_TO_GET_ASSETS});
+        else {
+          files = files.filter(file => !file.startsWith('.'));  // Remove hidden files from the list
+          return res.json(files);
+        }
+      });
   });
 });
 

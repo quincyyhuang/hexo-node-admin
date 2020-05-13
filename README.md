@@ -24,23 +24,20 @@ git clone https://github.com/quincyyhuang/hexo-node-admin
 cd hexo-node-admin
 ```
 
-2. Install dependencies for both client and server.
+2. Install dependencies.
 
 ```
-cd client
-npm install
-cd ../server
 npm install
 ```
 
-3. Setup `server/config.json`.
+3. Set up `config.json`.
 
 ```
 {
     "root": "/",
     "host": "localhost",
     "port": 4001,
-    "hexo_dir": "",     // Change this to the path to your hexo root folder
+    "hexo_dir": "",     // Change this to the path to your hexo root folder, can be relative path, relative to hexo-node-admin folder
     "admin": {
         "plain": true,
         "username": "test",     // Change username
@@ -55,20 +52,19 @@ npm install
 }
 ```
 
-4. Start Hexo Node Admin.
+4. Start Hexo Node Admin and go to `http://localhost:4001`.
 
 ```
-// In 'server' directory
 npm start
 ```
 
 ## Secure the Admin
 
-You can avoid using plain text password by setting `admin.plain` to `false`. Use [any](https://bcrypt-generator.com/) bcrypt generator to hash your password and paste the result in `admin.password`.
+You can avoid using plain text password by setting `admin.plain` to `false`. Use [any](https://bcrypt-generator.com/) bcrypt generator to hash your password and paste the result in `admin.password`. You should also use HTTPS to secure the traffic if the admin is going to be exposed to the Internet.
 
 ## Features
 
-- Support loading the admin on subdirectory. For example, '/admin' of your blog url.
+- Support loading the admin on subdirectory. For example, '/admin' of your blog URL.
 - Support [Post Asset Folder](https://hexo.io/docs/asset-folders#Post-Asset-Folder) feature. You can upload and delete post assets.
 
 ## Localization
@@ -98,4 +94,4 @@ Change `config.json` to match your needs.
 
 # Credits
 
-This project is using [React](https://reactjs.org/) and [Material UI](https://material-ui.com/). Special credit to [react-markdown-editor-lite](https://github.com/HarryChen0506/react-markdown-editor-lite). All third-party software follows their own licenses.
+This project is using [React](https://reactjs.org/), [Material UI](https://material-ui.com/) and [JWT](https://jwt.io/). Special credit to [react-markdown-editor-lite](https://github.com/HarryChen0506/react-markdown-editor-lite). All third-party software follows their own licenses.

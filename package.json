@@ -1,8 +1,36 @@
 {
-  "name": "front",
+  "name": "hexo-node-admin",
   "version": "1.0.0",
-  "private": true,
+  "description": "A Hexo management tool with UI designed to make it easier for you to compose.",
+  "main": "index.js",
+  "engineStrict": true,
+  "engines": {
+    "node": ">=10.13"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "react-start": "react-scripts start",
+    "build": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
+    "debug-api": "cross-env DEBUG_API=true node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/quincyyhuang/hexo-node-admin"
+  },
+  "keywords": [
+    "hexo",
+    "admin"
+  ],
+  "author": "Quincy Huang",
+  "license": "MIT",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.17.1",
+    "formidable": "^1.2.2",
+    "fs-extra": "^9.0.0",
+    "hexo": "^4.2.0",
+    "js-yaml": "^3.13.1",
+    "jsonwebtoken": "^8.5.1",
     "@material-ui/core": "^4.9.13",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.52",
@@ -19,12 +47,6 @@
     "react-markdown-editor-lite": "^1.1.2",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": "react-app"
