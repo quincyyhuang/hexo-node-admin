@@ -1,18 +1,23 @@
 // Imports
 import React from 'react';
-import axios from 'axios';
 import path from 'path';
-import { Redirect } from "react-router-dom";
+import { connect } from 'react-redux';
 import { withTranslation } from 'react-i18next';
+import { Redirect } from "react-router-dom";
 
 // Material UI Components
 import { styled } from '@material-ui/core/styles';
-import { Container, Avatar, Typography, TextField, Button, Box, Link, Snackbar } from '@material-ui/core';
-import MuiAlert from '@material-ui/lab/Alert';
+import { Container, Avatar, Typography, TextField, Button, Box} from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import pink from '@material-ui/core/colors/pink';
 
-import Status from '../status';
+// Components
+import Copyright from './Copyright';
+import Message from './Message';
+
+// Actions
+import { login } from '../actions/loginActions';
+import { dismissMessage } from '../actions/messageActions';
 
 /* CSS */
 const SDiv = styled('div')({
@@ -27,36 +32,15 @@ const SAvatar = styled(Avatar)({
   backgroundColor: pink[500]
 });
 
-/* Components */
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Created with ❤️ by '}
-      <Link color="inherit" href="https://quincyhuang.io/" target="_blank" rel="noopener">
-        Quincy
-      </Link>{' '}
-      {'.'}
-    </Typography>
-  );
+// Set up react-redux
+const mapStateToProps = (state) => {
+  const { ifShowMessage, ifMessageIsError, messageCode } = state.message;
+  const { token } = state.auth;
+
+  return { ifShowMessage, ifMessageIsError, messageCode, token };
 }
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
-
-function LoginMessage(props) {
-  return (
-    <Snackbar
-      open={props.showMsg}
-      autoHideDuration={props.error ? 3000 : 1000}
-      onClose={props.handleClose}
-    >
-      <Alert severity={props.error ? 'error' : 'success'}>
-        {props.msg}
-      </Alert>
-    </Snackbar>
-  );
-}
+const mapDispatchToProps = { login, dismissMessage };
 
 class Login extends React.Component {
   constructor(props) {
@@ -64,76 +48,30 @@ class Login extends React.Component {
     this.state = {
       username: null,
       password: null,
-      error: null,
-      msg: null,
-      showMsg: false,
-      redirect: false,
-      isRedirected: false,
-      token: localStorage.getItem('token')
-    }
-    // Handle redirect to here error message
-    if (props.location.state) {
-      this.state.isRedirected = true;
-      this.state.error = props.location.state.error;
-      this.state.msg = props.location.state.msg;
-      this.state.showMsg = true;
+      redirect: this.props.token ? true : false,
     }
     // Set title
     document.title = this.props.t('Login.title');
   }
 
-  login() {
-    const url = path.resolve(process.env.REACT_APP_ROOT, 'api', 'auth', 'login');
-    axios.post(url, {
-      u: this.state.username,
-      p: this.state.password
-    })
-      .then((res) => {
-        const token = res.data.token;
-        localStorage.setItem('token', token);
-        this.setState({
-          error: false,
-          msg: this.props.t('Message.AUTH_LOGGED_IN'),
-          showMsg: true,
-          isRedirected: false
-        });
-      })
-      .catch((err) => {
-        this.setState({
-          error: true,
-          msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
-          showMsg: true,
-          isRedirected: false
-        });
-      });
-  }
-
   render() {
     // Setup translation function
     const { t } = this.props;
-    if (this.state.redirect === true || this.state.token)
+    if (this.state.redirect)
       return <Redirect to={path.resolve(process.env.REACT_APP_ROOT, '!')} />
-    else
     return (
+      <div>
+      <Message
+        ifShowMessage={this.props.ifShowMessage}
+        ifMessageIsError={this.props.ifMessageIsError}
+        messageCode={this.props.messageCode}
+        handleClose={() => {
+          this.props.dismissMessage();
+          if (this.props.token)
+            this.setState({ redirect: true });
+        }}
+      />
       <Container component='main' maxWidth='xs'>
-        <LoginMessage showMsg={this.state.showMsg} msg={this.state.msg} error={this.state.error} handleClose={() => {
-          if (this.state.error === true)
-            this.setState({
-              showMsg: false,
-            });
-          else {
-            if (this.state.isRedirected === true)
-              this.setState({
-                showMsg: false,
-                isRedirected: false
-              });
-            else
-              this.setState({
-                showMsg: false,
-                redirect: true
-              });
-          }
-        }} />
         <SDiv className='paper'>
           <Typography component="h1" variant="h4">
             Hexo Node Admin
@@ -184,7 +122,7 @@ class Login extends React.Component {
             }}
             onClick={(e) => {
               e.preventDefault();
-              this.login();
+              this.props.login(this.state.username, this.state.password);
             }}
           >
             {t('Login.button_signin')}
@@ -195,10 +133,11 @@ class Login extends React.Component {
           <Copyright />
         </Box>
       </Container>
+      </div>
     );
   }
 }
 
-const TranslatedLogin = withTranslation()(Login);
+const TranslatedLogin = withTranslation()(connect(mapStateToProps, mapDispatchToProps)(Login));
 
 export default TranslatedLogin;

@@ -1,0 +1,50 @@
+/*
+  Action Types for components
+ */
+
+// Message
+export const SHOW_MESSAGE = "SHOW_MESSAGE";
+export const DISMISS_MESSAGE = "DISMISS_MESSAGE";
+
+// Login
+export const SIGN_IN = "SIGN_IN";
+export const SIGN_OUT = "SIGN_OUT";
+export const INVALIDATE_TOKEN = "INVALIDATE_TOKEN";
+
+// Dashboard
+export const REQUEST_ALL_POSTS = "REQUEST_ALL_POSTS";
+export const REQUEST_ALL_PAGES = "REQUEST_ALL_PAGES";
+export const REQUEST_ALL_STATS = "REQUEST_ALL_STATS";
+export const RECEIVE_ALL_POSTS = "RECEIVE_ALL_POSTS";
+export const RECEIVE_ALL_PAGES = "RECEIVE_ALL_PAGES";
+export const RECEIVE_ALL_STATS = "RECEIVE_ALL_STATS";
+
+export const FILTER_ITEMS = "FILTER_ITEMS";
+
+export const REQUEST_GENERATE = "REQUEST_GENERATE";
+export const REQUEST_DEPLOY = "REQUEST_DEPLOY";
+export const REQUEST_CLEAN = "REQUEST_CLEAN";
+export const DONE_GENERATE = "DONE_GENERATE";
+export const DONE_DEPLOY = "DONE_DEPLOY";
+export const DONE_CLEAN = "DONE_CLEAN";
+
+export const NEW_FILE = "NEW_FILE";
+export const DONE_NEW_FILE = "DONE_NEW_FILE";
+
+// Editor
+export const REQUEST_FILE_CONTENT = "REQUEST_FILE_CONTENT";
+export const RECEIVE_FILE_CONTENT = "RECEIVE_FILE_CONTENT";
+export const ONCHANGE_FILE_CONTENT = "ONCHANGE_FILE_CONTENT";
+
+export const SAVE_FILE_CONTENT = "SAVE_FILE_CONTENT";
+export const DONE_SAVE_FILE_CONTENT = "DONE_SAVE_FILE_CONTENT";
+export const DELETE_FILE = "DELETE_FILE";
+export const DONE_DELETE_FILE = "DONE_DELETE_FILE";
+
+export const REQUEST_ASSETS = "REQUEST_ASSETS";
+export const RECEIVE_ASSETS = "RECEIVE_ASSETS";
+export const DELETE_ASSET = "DELETE_ASSET";
+export const DONE_DELETE_ASSET = "DONE_DELETE_ASSET";
+
+export const UPLOAD_ASSET = "UPLOAD_ASSET";
+export const DONE_UPLOAD_ASSET = "DONE_UPLOAD_ASSET";

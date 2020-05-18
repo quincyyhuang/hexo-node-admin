@@ -1,11 +1,11 @@
 # Hexo Node Admin
 
-A [Hexo](https://hexo.io/) management tool with UI designed to make it easier for you to compose and manage your posts and pages. If you like it, do not forget to Star. Many thanks.
+A [Hexo](https://hexo.io/) management tool with **fully responsive** UI designed to make it easier for you to compose and manage your posts and pages. If you like it, do not forget to Star. Many thanks.
 
 ## Screenshots
 
-![](./docs/dashboard.png)
-![](./docs/editor.png)
+![](./images/dashboard.png)
+![](./images/editor.png)
 
 ## Migrate from v0 to v1
 
@@ -86,7 +86,7 @@ Change `config.json` to match your needs.
 |    `hexo_dir`    |              Path to your hexo blog root folder. If using relative path, the path will be relative to the 'hexo-node-admin' folder.             |
 |   `admin.plain`  |                               If using plain text password. Default to `true`. Set to `false` to use hashed password.                              |
 | `admin.username` |                                                               Username for login.                                                              |
-| `admin.password` |      Password for login. If `admin.plain == true`, this is plaint text password.If `admin.plain == false`, this needs to be a bcrypt-ed hash.      |
+| `admin.password` |      Password for login. If `admin.plain == true`, this is plain text password.If `admin.plain == false`, this needs to be a bcrypt-ed hash.      |
 |   `deploy.type`  | Type for deployment. Default to `'default'`, this runs `hexo deploy`. Set to `'command'` to run a single command. Set to `'script'` to run a script. |
 |  `deploy.script` |        If `deploy.type == 'command'`, this is the one line command to execute. If `deploy.type == 'script'`, this is the path to the script.       |
 |      `lang`      |                           Language to use. Default to `'en-US'`. All available options please see localization section.                          |
@@ -94,4 +94,4 @@ Change `config.json` to match your needs.
 
 # Credits
 
-This project is using [React](https://reactjs.org/), [Material UI](https://material-ui.com/) and [JWT](https://jwt.io/). Special credit to [react-markdown-editor-lite](https://github.com/HarryChen0506/react-markdown-editor-lite). All third-party software follows their own licenses.
+This project is using [React](https://reactjs.org/), [React Redux](https://react-redux.js.org/), [Material UI](https://material-ui.com/) and [JWT](https://jwt.io/). Special credit to [react-markdown-editor-lite](https://github.com/HarryChen0506/react-markdown-editor-lite). All third-party software follows their own licenses.

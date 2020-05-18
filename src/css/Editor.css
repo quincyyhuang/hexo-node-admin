@@ -1,8 +1,10 @@
-.base {
+#base {
     height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    overflow-y: hidden;
 }
 
 .title {
@@ -11,5 +13,7 @@
 
 .editor-wrapper {
     flex-grow: 1;
-    overflow-y: scroll;
+    display: flex;
+    align-items: stretch;
+    overflow-y: hidden;
 }

@@ -2,7 +2,7 @@ function Status() {}
 
 Status.getCodeTranslationKey = (code) => {
   for (let [key, value] of Object.entries(Status)) {
-    if (code == value)
+    if (code === value)
       return key;
   }
   return null;
@@ -33,6 +33,10 @@ Status.HEXO_FAILED_TO_GET_ASSETS = 22;
 Status.HEXO_FAILED_TO_DELETE = 23;
 Status.HEXO_FAILED_TO_CREATE = 24;
 
+Status.NETWORK_FAILED = 25;
+Status.NO_FILES_SELECTED = 26;
+Status.TOO_MANY_FILES_SELECTED = 27;
+
 Status.HEXO_WROTE_TO_FILE = -1;
 Status.HEXO_GENERATED = -2;
 Status.HEXO_CLEANED = -3;
@@ -40,5 +44,9 @@ Status.HEXO_DEPLOYED = -4;
 Status.HEXO_UPLOADED = -5;
 Status.HEXO_DELETED = -6;
 Status.HEXO_CREATED = -7
+
+Status.AUTH_LOGGED_IN = -8;
+Status.AUTH_LOGGED_OUT = -9;
+Status.AUTH_NOT_LOGGED_IN = -10;
 
 module.exports = Object.freeze(Status);

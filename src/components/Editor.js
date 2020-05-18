@@ -1,6 +1,6 @@
 // Imports
 import React from 'react';
-import axios from 'axios';
+import { connect } from 'react-redux';
 import path from 'path';
 import MarkdownIt from 'markdown-it'
 import MdEditor from 'react-markdown-editor-lite'
@@ -8,74 +8,52 @@ import { Redirect } from "react-router-dom";
 import { withTranslation } from 'react-i18next';
 
 // Material UI Components
-import { Box, Typography, AppBar, Toolbar, Button, ButtonGroup, Tooltip, Snackbar, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, List, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction, IconButton } from '@material-ui/core';
-import MuiAlert from '@material-ui/lab/Alert';
+import { Box, Typography, AppBar, Toolbar, Button, ButtonGroup, Tooltip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, List  } from '@material-ui/core';
 import SaveIcon from '@material-ui/icons/Save';
 import BackupIcon from '@material-ui/icons/Backup';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import AttachFileIcon from '@material-ui/icons/AttachFile';
+
+import Message from './Message';
+import AssetListItem from './AssetListItem';
+
 import pink from '@material-ui/core/colors/pink';
 
 // Styles
 import '../css/Editor.css';
 import 'react-markdown-editor-lite/lib/index.css';
 
+// Actions
+import { logout } from '../actions/loginActions';
+import { getFile, saveFile, onChangeFile, deleteFile, getAssets, deleteAsset, uploadAsset } from '../actions/editorActions';
+import { showMessage, dismissMessage } from '../actions/messageActions';
+
 import Status from '../status';
 
-// Components
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
+// Set up react-redux
+const mapStateToProps = (state) => {
+  const { ifShowMessage, ifMessageIsError, messageCode } = state.message;
+  const { token } = state.auth;
+  let { ifChanged, content, lastSavedContent, assets } = state.editor;
+  // Change CRLF to LF on Windows so that on change * can function correctly
+  content = content.replace(/\r\n/g, '\n');
+  lastSavedContent = lastSavedContent.replace(/\r\n/g, '\n');
+
+  return { ifShowMessage, ifMessageIsError, messageCode, token, ifChanged, content, lastSavedContent, assets };
 }
 
-function Message(props) {
-  return (
-    <Snackbar
-      open={props.showMsg}
-      autoHideDuration={3000}
-      onClose={props.handleClose}
-    >
-      <Alert severity={props.error ? 'error' : 'success'}>
-        {props.msg}
-      </Alert>
-    </Snackbar>
-  );
-}
-
-function AssetListItem(props) {
-  return (
-    <ListItem
-    >
-      <ListItemIcon>
-        <AttachFileIcon />
-      </ListItemIcon>
-      <ListItemText primary={props.name} />
-      <ListItemSecondaryAction>
-        <IconButton edge="end" onClick={() => props.handleDeleteAsset(props.name)}>
-          <DeleteIcon />
-        </IconButton>
-      </ListItemSecondaryAction>
-    </ListItem>
-  )
-}
+const mapDispatchToProps = { logout, getFile, saveFile, onChangeFile, deleteFile, getAssets, deleteAsset, uploadAsset, showMessage, dismissMessage };
 
 class Editor extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       deleted: false,
-      loaded: true,
-      msg: null,
-      error: false,
-      showMsg: false,
-      token: null,
-      lastSavedContent: null,
-      content: null,
-      ifChanged: false,
-      assets: [],
+      isLoggedOut: false,
       type: this.props.location.state ? this.props.location.state.fileType : null,
       name: this.props.location.state ? this.props.location.state.name : null,
+      showMDPreview: true,
       showDeleteDialog: false,
       showAssetsDialog: false,
       showUploadDialog: false
@@ -94,14 +72,6 @@ class Editor extends React.Component {
       this.state.showMDPreview = false
     // Set title
     document.title = `${this.state.name} - ${this.props.t('Editor.title')}`;
-    // Redirect if no token
-    let token = localStorage.getItem('token');
-    if (token)
-      this.state.token = token;
-    else {
-      this.state.msg = this.props.t('Message.PLEASE_SIGN_IN');
-      this.state.error = true;
-    }
     // Set markdown parser
     this.mdParser = new MarkdownIt();
   }
@@ -109,6 +79,7 @@ class Editor extends React.Component {
   componentDidMount() {
     // Set window listener
     window.addEventListener('resize', this.handleResize); // Handle resize
+    window.addEventListener('orientationchange', this.handleResize); // Handle rotate
     window.addEventListener('beforeunload', this.handlePageOnClose);
     // Set editor keyboard listener
     if (this.mdEditor.current)
@@ -117,13 +88,13 @@ class Editor extends React.Component {
         withKey: window.navigator.platform === 'MacIntel' ? ['metaKey'] : ['ctrlKey'],
         callback: this.handleEditorKeyboard.bind(this)
       });
-    if (this.state.token) {
-      this.loadFileContent(true);
-    }
+    // Load content
+    this.props.getFile(this.state.type, this.state.name);
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleResize);
+    window.removeEventListener('orientationchange', this.handleResize);
     window.removeEventListener('beforeunload', this.handlePageOnClose);
     if (this.mdEditor.current)
       this.mdEditor.current.offKeyboard({
@@ -145,270 +116,40 @@ class Editor extends React.Component {
   }
 
   handleEditorKeyboard() {
-    this.save();
+    this.props.saveFile(this.state.type, this.state.name, this.props.content);
   }
 
   handlePageOnClose(e) {
     // e.preventDefault();  // If added, Firefox will show the prompt anyway
-    if (this.state.ifChanged)
+    if (this.props.ifChanged)
       return e.returnValue = 'You have unsaved changes, are you sure to continue?';
   }
 
-  loadFileContent(initial = false) {
-    const entry_point = path.resolve(process.env.REACT_APP_ROOT, 'api', 'hexo');
-    let end_point;
-    if (this.state.type === 'post')
-      end_point = path.resolve(entry_point, 'posts', this.state.name);
-    else if (this.state.type === 'page')
-      end_point = path.resolve(entry_point, 'pages', this.state.name);
-    // Setup header
-    const config = {
-      headers: {
-        'Authorization': ['Bearer', this.state.token].join(' ')
-      }
-    }
-    axios.get(end_point, config)
-      .then((res) => {
-        this.setState({
-          content: res.data.replace(/\r\n/g, '\n')  // Change CRLF to LF for Windows
-        });
-        if (initial)
-          this.setState({
-            lastSavedContent: res.data.replace(/\r\n/g, '\n')
-          });
-      })
-      .catch((err) => {
-        if (err.response.status === 401) {
-          // Unauthorized
-          localStorage.removeItem('token');
-          this.setState({
-            token: null,
-            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
-            error: true,
-            loaded: false
-          });
-        }
-        else {
-          this.setState({
-            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
-            error: true,
-            loaded: false
-          });
-        }
-      });
-  }
-
-  loadAssets() {
-    const entry_point = path.resolve(process.env.REACT_APP_ROOT, 'api', 'hexo', 'assets');
-    let end_point = path.resolve(entry_point, this.state.type, this.state.name);
-    // Setup header
-    const config = {
-      headers: {
-        'Authorization': ['Bearer', this.state.token].join(' ')
-      }
-    }
-    axios.get(end_point, config)
-      .then((res) => {
-        this.setState({
-          assets: res.data
-        });
-      })
-      .catch((err) => {
-        if (err.response.status === 401) {
-          // Unauthorized
-          localStorage.removeItem('token');
-          this.setState({
-            token: null,
-            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
-            error: true
-          });
-        }
-        else {
-          this.setState({
-            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
-            error: true,
-            showMsg: true,
-            showAssetsDialog: false
-          });
-        }
-      });
-  }
-
-  save() {
-    const entry_point = path.resolve(process.env.REACT_APP_ROOT, 'api', 'hexo');
-    let end_point;
-    if (this.state.type === 'post')
-      end_point = path.resolve(entry_point, 'posts', this.state.name);
-    else if (this.state.type === 'page')
-      end_point = path.resolve(entry_point, 'pages', this.state.name);
-    // Setup header
-    const config = {
-      headers: {
-        'Authorization': ['Bearer', this.state.token].join(' ')
-      }
-    }
-    axios.post(end_point, {content: this.state.content}, config)
-      .then((res) => {
-        this.setState({
-          error: false,
-          msg: this.props.t(`Message.${Status.getCodeTranslationKey(res.data.code)}`),
-          showMsg: true,
-          lastSavedContent: this.state.content,
-          ifChanged: false
-        });
-      })
-      .catch((err) => {
-        if (err.response.status === 401) {
-          // Unauthorized
-          localStorage.removeItem('token');
-          this.setState({
-            token: null,
-            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
-            error: true
-          });
-        }
-        else {
-          this.setState({
-            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
-            error: true,
-            showMsg: true
-          });
-        }
-      });
-  }
-
-  delete() {
-    const entry_point = path.resolve(process.env.REACT_APP_ROOT, 'api', 'hexo', 'delete');
-    let end_point = path.resolve(entry_point, this.state.type, this.state.name);
-    // Setup header
-    const config = {
-      headers: {
-        'Authorization': ['Bearer', this.state.token].join(' ')
-      }
-    }
-    axios.get(end_point, config)
-      .then((res) => {
-        this.setState({
-          error: false,
-          msg: this.props.t(`Message.${Status.getCodeTranslationKey(res.data.code)}`),
-          deleted: true
-        });
-      })
-      .catch((err) => {
-        if (err.response.status === 401) {
-          // Unauthorized
-          localStorage.removeItem('token');
-          this.setState({
-            token: null,
-            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
-            error: true
-          });
-        }
-        else {
-          this.setState({
-            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
-            error: true,
-            showMsg: true
-          });
-        }
-      });
-  }
-
   handleDeleteAsset(fileName) {
-    const entry_point = path.resolve(process.env.REACT_APP_ROOT, 'api', 'hexo', 'delete');
-    let end_point = path.resolve(entry_point, this.state.type, this.state.name, fileName);
-    // Setup header
-    const config = {
-      headers: {
-        'Authorization': ['Bearer', this.state.token].join(' ')
-      }
-    }
-    axios.get(end_point, config)
-      .then((res) => {
-        this.setState({
-          error: false,
-          msg: this.props.t(`Message.${Status.getCodeTranslationKey(res.data.code)}`),
-          showMsg: true
-        });
-        this.loadAssets();
-      })
-      .catch((err) => {
-        if (err.response.status === 401) {
-          // Unauthorized
-          localStorage.removeItem('token');
-          this.setState({
-            token: null,
-            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
-            error: true
-          });
-        }
-        else {
-          this.setState({
-            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
-            error: true,
-            showMsg: true
-          });
-        }
-      });
+    this.props.deleteAsset(this.state.type, this.state.name, fileName);
   }
 
   upload() {
     const files = this.fileInput.current.files;
     if (files.length === 0) {
-      return this.setState({
-        msg: this.props.t('Message.NO_FILES_SELECTED'),
-        error: true,
-        showMsg: true
-      });
+      return this.props.showMessage(true, Status.NO_FILES_SELECTED);
     }
     else if (files.length > 5) {
-      return this.setState({
-        msg: this.props.t('Message.TOO_MANY_FILES_SELECTED'),
-        error: true,
-        showMsg: true
-      });
+      return this.props.showMessage(true, Status.TOO_MANY_FILES_SELECTED);
     }
     else
     {
       let formData = new FormData();
       for (let i = 0; i < files.length; i++)
         formData.append('file', files[i])
-      const entry_point = path.resolve(process.env.REACT_APP_ROOT, 'api', 'hexo', 'upload');
-      let end_point = path.resolve(entry_point, this.state.type, this.state.name);
-      // Setup header
-      const config = {
-        headers: {
-          'Authorization': ['Bearer', this.state.token].join(' '),
-          'Content-Type': 'multipart/form-data'
-        }
-      }
-      axios.post(end_point, formData, config)
-        .then((res) => {
+      this.props.uploadAsset(this.state.type, this.state.name, formData)
+        .then(() => {
+          // Close upload modal
           this.setState({
-            error: false,
-            msg: this.props.t(`Message.${Status.getCodeTranslationKey(res.data.code)}`),
-            showMsg: true,
             showUploadDialog: false
           });
         })
-        .catch((err) => {
-          if (err.response.status === 401) {
-            // Unauthorized
-            localStorage.removeItem('token');
-            this.setState({
-              token: null,
-              msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
-              error: true
-            });
-          }
-          else {
-            this.setState({
-              msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
-              error: true,
-              showMsg: true
-            });
-          }
-        });
+        .catch(() => {});
     }
   }
 
@@ -430,66 +171,39 @@ class Editor extends React.Component {
     });
   }
 
-  logout() {
-    localStorage.removeItem('token');
-    this.setState({
-      msg: this.props.t('Message.SIGNED_OUT'),
-      error: false,
-      token: null
-    });
-  }
-
   render() {
     // Setup translation function
     const { t } = this.props;
-    if (!this.state.token) {
-      return (
-        <Redirect to={{
-          pathname: process.env.REACT_APP_ROOT,
-          state: {
-            msg: this.state.msg,
-            error: this.state.error
-          }
-        }} />
-      );
+    if (this.state.isLoggedOut)
+      return <Redirect to={{ pathname: process.env.REACT_APP_ROOT }} />;
+    if (!this.props.token) {
+      this.props.showMessage(true, Status.AUTH_NOT_LOGGED_IN);
+      return <Redirect to={{ pathname: process.env.REACT_APP_ROOT }} />;
     }
-    if (this.state.deleted || !this.state.loaded) {
-      return (
-        <Redirect to={{
-          pathname: path.resolve(process.env.REACT_APP_ROOT, '!'),
-          state: {
-            msg: this.state.msg,
-            error: this.state.error
-          }
-        }} />
-      );
-    }
-    if (!this.state.type || !this.state.name) {
-      return (
-        <Redirect to={{
-          pathname: path.resolve(process.env.REACT_APP_ROOT, '!')
-        }} />
-      );
-    }
+    if (this.state.deleted)
+      return <Redirect to={{ pathname: path.resolve(process.env.REACT_APP_ROOT, '!') }} />;
+    if (!this.state.type || !this.state.name)
+      return <Redirect to={{ pathname: path.resolve(process.env.REACT_APP_ROOT, '!') }} />;
+
     return (
-      <div className="base">
+      <div id="base">
         <AppBar position="relative" style={{backgroundColor: pink[500]}}>
           <Toolbar>
             <Box display={{ xs: 'block', sm: 'none' }} className="title">
               <Typography component="h1" variant="h6">
-                Hexo Node Admin: [{this.state.type === 'post' ? t('Editor.title_post') : t('Editor.title_page')}]<b>{this.state.name}{this.state.ifChanged ? '*' : null}</b>
+                Hexo Node Admin: [{this.state.type === 'post' ? t('Editor.title_post') : t('Editor.title_page')}]<b>{this.state.name}{this.props.ifChanged ? '*' : null}</b>
               </Typography>
             </Box>
             <Box display={{ xs: 'none', sm: 'block' }} className="title">
               <Typography component="h1" variant="h4">
-                Hexo Node Admin: [{this.state.type === 'post' ? t('Editor.title_post') : t('Editor.title_page')}]<b>{this.state.name}{this.state.ifChanged ? '*' : null}</b>
+                Hexo Node Admin: [{this.state.type === 'post' ? t('Editor.title_post') : t('Editor.title_page')}]<b>{this.state.name}{this.props.ifChanged ? '*' : null}</b>
               </Typography>
             </Box>
             <Box display={{ xs: 'none', sm: 'block' }}>
               <ButtonGroup size="small" variant="outlined" color="inherit">
                 <Tooltip title={`${t('Editor.tooltip_save')} (${window.navigator.platform === 'MacIntel' ? '⌘' : 'Ctrl'}S)`}>
                   <Button
-                    onClick={() => this.save()}
+                    onClick={() => this.props.saveFile(this.state.type, this.state.name, this.props.content)}
                   >
                     <SaveIcon />
                   </Button>
@@ -504,8 +218,12 @@ class Editor extends React.Component {
                 <Tooltip title={t('Editor.tooltip_assets')}>
                   <Button
                     onClick={() => {
-                      this.loadAssets();
-                      this.setOpenAssetsDialog(true);
+                      this.props.getAssets(this.state.type, this.state.name)
+                        .then(() => {
+                          // Open dialog only when successful
+                          this.setOpenAssetsDialog(true);
+                        })
+                        .catch(() => {});
                     }}
                   >
                     <ListAltIcon />
@@ -520,7 +238,12 @@ class Editor extends React.Component {
                 </Tooltip>
                 <Tooltip title={t('Editor.tooltip_signout')}>
                   <Button
-                    onClick={() => this.logout()}
+                    onClick={() => {
+                      this.setState({
+                        isLoggedOut: true
+                      });
+                      this.props.logout();
+                    }}
                   >
                     <ExitToAppIcon />
                   </Button>
@@ -533,7 +256,7 @@ class Editor extends React.Component {
           <ButtonGroup size="small" variant="contained" color="inherit" fullWidth>
             <Tooltip title={`${t('Editor.tooltip_save')} (${window.navigator.platform === 'MacIntel' ? '⌘' : 'Ctrl'}S)`}>
               <Button
-                onClick={() => this.save()}
+                onClick={() => this.props.saveFile(this.state.type, this.state.name, this.props.content)}
               >
                 <SaveIcon />
               </Button>
@@ -548,7 +271,7 @@ class Editor extends React.Component {
             <Tooltip title={t('Editor.tooltip_assets')}>
               <Button
                 onClick={() => {
-                  this.loadAssets();
+                  this.props.getAssets(this.state.type, this.state.name);
                   this.setOpenAssetsDialog(true);
                 }}
               >
@@ -564,7 +287,12 @@ class Editor extends React.Component {
             </Tooltip>
             <Tooltip title={t('Editor.tooltip_signout')}>
               <Button
-                onClick={() => this.logout()}
+                onClick={() => {
+                  this.setState({
+                    isLoggedOut: true
+                  });
+                  this.props.logout();
+                }}
               >
                 <ExitToAppIcon />
               </Button>
@@ -574,8 +302,8 @@ class Editor extends React.Component {
         <div className="editor-wrapper">
           <MdEditor
             ref={this.mdEditor}
-            value={this.state.content}
-            style={{height: '100%'}}
+            value={this.props.content}
+            style={{ flexGrow: 1 }}
             renderHTML={(text) => this.mdParser.render(text)}
             config={{
               view: {
@@ -585,23 +313,10 @@ class Editor extends React.Component {
               }
             }}
             onChange={({html, text}) => {
-              this.setState({
-                content: text,
-                ifChanged: !(text === this.state.lastSavedContent)
-              });
+              this.props.onChangeFile(text);
             }}
           />
         </div>
-        <Message
-          showMsg={this.state.showMsg}
-          msg={this.state.msg}
-          error={this.state.error}
-          handleClose={() => {
-            this.setState({
-              showMsg: false
-            });
-          }}
-        />
         <Dialog open={this.state.showDeleteDialog} onClose={() => this.setOpenDialog(false)} fullWidth maxWidth="sm">
           <DialogTitle>{t('Editor.dialog_delete_title')}</DialogTitle>
           <DialogContent>
@@ -613,7 +328,19 @@ class Editor extends React.Component {
             <Button color="default" onClick={() => {this.setOpenDialog(false)}}>
               {t('Editor.dialog_button_cancel')}
             </Button>
-            <Button color="secondary" onClick={() => {this.delete()}}>
+            <Button
+              color="secondary"
+              onClick={() => {
+                this.props.deleteFile(this.state.type, this.state.name)
+                  .then(() => {
+                    // Can redirect to dashboard
+                    this.setState({
+                      deleted: true
+                    });
+                  })
+                  .catch(() => {});
+              }}
+            >
               {t('Editor.dialog_delete_button')}
             </Button>
           </DialogActions>
@@ -641,29 +368,37 @@ class Editor extends React.Component {
           <DialogTitle>{t('Editor.dialog_assets_title')}</DialogTitle>
           <DialogContent>
             {
-              this.state.assets.length === 0 &&
+              this.props.assets.length === 0 &&
               <DialogContentText>
                 {t('Editor.dialog_assets_nofiles_text')}
               </DialogContentText>
             }
             {
-              this.state.assets.length > 0 &&
+              this.props.assets.length > 0 &&
               <DialogContentText>
                 {t('Editor.dialog_assets_helper')} <br /> {'{% asset_path slug %}'} <br /> {'{% asset_img slug [title] %}'} <br /> {'{% asset_link slug [title] %}'}
               </DialogContentText>
             }
             <List>
               {
-                this.state.assets.map(value => <AssetListItem name={value} key={value} handleDeleteAsset={this.handleDeleteAsset} />)
+                this.props.assets.map(value => <AssetListItem name={value} key={value} handleDeleteAsset={this.handleDeleteAsset} />)
               }
             </List>
           </DialogContent>
         </Dialog>
+        <Message
+          ifShowMessage={this.props.ifShowMessage}
+          ifMessageIsError={this.props.ifMessageIsError}
+          messageCode={this.props.messageCode}
+          handleClose={() => {
+            this.props.dismissMessage();
+          }}
+        />
       </div>
     );
   }
 }
 
-const TranslatedEditor = withTranslation()(Editor);
+const TranslatedEditor = withTranslation()(connect(mapStateToProps, mapDispatchToProps)(Editor));
 
 export default TranslatedEditor;
