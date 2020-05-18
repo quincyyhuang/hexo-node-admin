@@ -1,326 +1,82 @@
 // Imports
 import React from 'react';
-import axios from 'axios';
+import { connect } from 'react-redux';
 import path from 'path';
 import _ from 'lodash';
 import { Redirect } from "react-router-dom";
 import { withTranslation } from 'react-i18next';
 
 // Material UI Components
-import { Container, Typography, TextField, Button, ButtonGroup, List, ListItem, ListItemIcon, ListItemText, ListSubheader, Divider, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, InputLabel, Select, MenuItem, Snackbar, Tooltip} from '@material-ui/core';
-import MuiAlert from '@material-ui/lab/Alert';
-import DescriptionIcon from '@material-ui/icons/Description';
-import PagesIcon from '@material-ui/icons/Pages';
+import { Container, Typography, TextField, Button, ButtonGroup, List, ListSubheader, Divider, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, InputLabel, Select, MenuItem, Tooltip} from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import BuildIcon from '@material-ui/icons/Build';
 import PublishIcon from '@material-ui/icons/Publish';
 import DeleteSweepIcon from '@material-ui/icons/DeleteSweep';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import pink from '@material-ui/core/colors/pink';
+
+// Components
+import Message from './Message';
+import FileListItem from './FileListItem';
 
 // Styles
 import '../css/Dashboard.css';
 
+// Actions
+import { logout } from '../actions/loginActions';
+import { getAllPosts, getAllPages, getAllStats, generate, deploy, clean, filterItems, newFile } from '../actions/dashboardActions';
+import { showMessage, dismissMessage } from '../actions/messageActions';
+
 import Status from '../status';
 
-function MyListItem(props) {
-  return (
-    <ListItem
-      button
-      className='my-list-item'
-      onClick={() => {
-        props.handleClick(props.itemType, props.name);
-      }}
-    >
-      <ListItemIcon>
-        {
-          props.itemType === 'post' ? <DescriptionIcon style={{color: pink[400]}} /> : <PagesIcon style={{color: pink[400]}} />
-        }
-      </ListItemIcon>
-      <ListItemText primary={props.name} />
-    </ListItem>
-  );
+// Set up react-redux
+const mapStateToProps = (state) => {
+  const { ifShowMessage, ifMessageIsError, messageCode } = state.message;
+  const { token } = state.auth;
+  const { stats, query } = state.dashboard;
+  let { posts, pages } = state.dashboard;
+  // Filter posts and pages for display
+  posts = _.filter(posts, value => value.toLowerCase().includes(query.toLowerCase()));
+  pages = _.filter(pages, value => value.toLowerCase().includes(query.toLowerCase()));
+
+  return { ifShowMessage, ifMessageIsError, messageCode, token, posts, pages, stats, query };
 }
 
-// Components
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
-
-function Message(props) {
-  return (
-    <Snackbar
-      open={props.showMsg}
-      autoHideDuration={3000}
-      onClose={props.handleClose}
-    >
-      <Alert severity={props.error ? 'error' : 'success'}>
-        {props.msg}
-      </Alert>
-    </Snackbar>
-  );
-}
+const mapDispatchToProps = { logout, getAllPosts, getAllPages, getAllStats, generate, deploy, clean, filterItems, newFile, showMessage, dismissMessage };
 
 class Dashboard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      msg: null,
-      error: false,
-      showMsg: false,
-      token: null,
-      posts: [],
-      pages: [],
-      query: '',
-      stats: null,
       newFileModal: false,
       newFileType: 'post',
-      newFileName: ''
+      newFileName: '',
+      redirect: this.props.token ? false : true,   // If no token, redirect to /
+      isLoggedOut: false
     }
     // Make debounced function
     this.debouncedSetNewQuery = _.debounce((newQuery) => {
-      this.setState({
-        query: newQuery
-      });
+      this.props.filterItems(newQuery);
     }, 500);
     // Set title
     document.title = this.props.t('Dashboard.title');
-    // Redirect if no token
-    let token = localStorage.getItem('token');
-    if (token)
-      this.state.token = token;
-    else {
-      this.state.msg = this.props.t('Message.PLEASE_SIGN_IN');
-      this.state.error = true;
-    }
-    // Handle redirect to here error message
-    if (props.location.state) {
-      this.state.error = props.location.state.error;
-      this.state.msg = props.location.state.msg;
-      if (this.state.msg)
-        this.state.showMsg = true;
-    }
   }
 
-  // Getter properties
-  get filteredPosts() {
-    return _.filter(this.state.posts, value => value.toLowerCase().includes(this.state.query.toLowerCase()));
-  }
-
-  get filteredPages() {
-    return _.filter(this.state.pages, value => value.toLowerCase().includes(this.state.query.toLowerCase()));
+  static getDerivedStateFromProps(props) {
+    return {
+      redirect: props.token ? false : true
+    }
   }
 
   componentDidMount() {
-    if (this.state.token)
-      this.fetchData();
-  }
-
-  fetchData() {
-    // Fetch data
-    const entry_point = path.resolve(process.env.REACT_APP_ROOT, 'api', 'hexo');
-    const posts_all = path.resolve(entry_point, 'posts', 'all');
-    const pages_all = path.resolve(entry_point, 'pages', 'all');
-    const stats_all = path.resolve(entry_point, 'stats');
-    // Setup header
-    const config = {
-      headers: {
-        'Authorization': ['Bearer', this.state.token].join(' ')
-      }
-    }
-    // Setup promises
-    const p_posts = axios.get(posts_all, config);
-    const p_pages = axios.get(pages_all, config);
-    const p_stats = axios.get(stats_all, config);
-    axios.all([p_posts, p_pages, p_stats])
-      .then(([posts, pages, stats]) => {
-        this.setState({
-          posts: posts.data,
-          pages: pages.data,
-          stats: stats.data
-        });
-      })
-      .catch((err) => {
-        if (err.response.status === 401) {
-          // Unauthorized
-          localStorage.removeItem('token');
-          this.setState({
-            token: null,
-            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
-            error: true
-          });
-        }
-        else {
-          this.setState({
-            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
-            error: true,
-            showMsg: true
-          });
-        }
-      });
-  }
-
-  logout() {
-    localStorage.removeItem('token');
-    this.setState({
-      msg: this.props.t('Message.SIGNED_OUT'),
-      error: false,
-      token: null
-    });
+    this.props.getAllPosts();
+    this.props.getAllPages();
+    this.props.getAllStats();
   }
 
   setOpenDialog(open) {
     this.setState({
       newFileModal: open
     });
-  }
-
-  handleSubmit() {
-    if (!this.state.newFileName)
-      this.setState({
-        msg: this.props.t('Message.EMPTY_FILENAME'),
-        error: true,
-        showMsg: true
-      });
-    else
-    {
-      const endpoint = path.resolve(process.env.REACT_APP_ROOT, 'api', 'hexo', 'new');
-      const config = {
-        headers: {
-          'Authorization': ['Bearer', this.state.token].join(' ')
-        }
-      }
-      axios.get(path.resolve(endpoint, this.state.newFileType, this.state.newFileName), config)
-        .then((res) => {
-          this.setState({
-            msg: this.props.t(`Message.${Status.getCodeTranslationKey(res.data.code)}`),
-            error: false,
-            showMsg: true,
-            newFileModal: false
-          });
-          this.fetchData();
-        })
-        .catch((err) => {
-          if (err.response.status === 401) {
-            // Unauthorized
-            localStorage.removeItem('token');
-            this.setState({
-              token: null,
-              msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
-              error: true
-            });
-          }
-          else
-            this.setState({
-              msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
-              error: true,
-              showMsg: true,
-              newFileModal: false
-            });
-        });
-    }
-  }
-
-  generate() {
-    const endpoint = path.resolve(process.env.REACT_APP_ROOT, 'api', 'hexo', 'generate');
-    const config = {
-      headers: {
-        'Authorization': ['Bearer', this.state.token].join(' ')
-      }
-    }
-    axios.get(endpoint, config)
-      .then((res) => {
-        this.setState({
-          msg: this.props.t(`Message.${Status.getCodeTranslationKey(res.data.code)}`),
-          error: false,
-          showMsg: true
-        });
-      })
-      .catch((err) => {
-        if (err.response.status === 401) {
-          // Unauthorized
-          localStorage.removeItem('token');
-          this.setState({
-            token: null,
-            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
-            error: true
-          });
-        }
-        else
-          this.setState({
-            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
-            error: true,
-            showMsg: true,
-          });
-      });
-  }
-
-  deploy() {
-    const endpoint = path.resolve(process.env.REACT_APP_ROOT, 'api', 'hexo', 'deploy');
-    const config = {
-      headers: {
-        'Authorization': ['Bearer', this.state.token].join(' ')
-      }
-    }
-    axios.get(endpoint, config)
-      .then((res) => {
-        this.setState({
-          msg: this.props.t(`Message.${Status.getCodeTranslationKey(res.data.code)}`),
-          error: false,
-          showMsg: true
-        });
-      })
-      .catch((err) => {
-        if (err.response.status === 401) {
-          // Unauthorized
-          localStorage.removeItem('token');
-          this.setState({
-            token: null,
-            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
-            error: true
-          });
-        }
-        else
-          this.setState({
-            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
-            error: true,
-            showMsg: true,
-          });
-      });
-  }
-
-  clean() {
-    const endpoint = path.resolve(process.env.REACT_APP_ROOT, 'api', 'hexo', 'clean');
-    const config = {
-      headers: {
-        'Authorization': ['Bearer', this.state.token].join(' ')
-      }
-    }
-    axios.get(endpoint, config)
-      .then((res) => {
-        this.setState({
-          msg: this.props.t(`Message.${Status.getCodeTranslationKey(res.data.code)}`),
-          error: false,
-          showMsg: true
-        });
-      })
-      .catch((err) => {
-        if (err.response.status === 401) {
-          // Unauthorized
-          localStorage.removeItem('token');
-          this.setState({
-            token: null,
-            msg: this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`),
-            error: true
-          });
-        }
-        else
-          this.setState({
-            msg: Status.getCodeTranslationKey(err.response.data.code) ? this.props.t(`Message.${Status.getCodeTranslationKey(err.response.data.code)}`) : this.props.t('Message.FAILED_TO_CONNECT_SERVER'),
-            error: true,
-            showMsg: true,
-          });
-      });
   }
 
   openEditor(fileType, name) {
@@ -332,14 +88,12 @@ class Dashboard extends React.Component {
   render() {
     // Setup translation function
     const { t } = this.props;
-    if (!this.state.token) {
+    if (this.state.redirect) {
+      if (!this.state.isLoggedOut)
+        this.props.showMessage(true, Status.AUTH_NOT_LOGGED_IN);
       return (
         <Redirect to={{
           pathname: process.env.REACT_APP_ROOT,
-          state: {
-            msg: this.state.msg,
-            error: this.state.error
-          }
         }} />
       );
     }
@@ -358,22 +112,31 @@ class Dashboard extends React.Component {
               </Button>
             </Tooltip>
             <Tooltip title={t('Dashboard.tooltip_generate')}>
-              <Button variant="outlined" color='secondary' onClick={() => this.generate()}>
+              <Button variant="outlined" color='secondary' onClick={() => this.props.generate()}>
                 <BuildIcon />
               </Button>
             </Tooltip>
             <Tooltip title={t('Dashboard.tooltip_deploy')}>
-              <Button variant="outlined" color="secondary" onClick={() => this.deploy()}>
+              <Button variant="outlined" color="secondary" onClick={() => this.props.deploy()}>
                 <PublishIcon />
               </Button>
             </Tooltip>
             <Tooltip title={t('Dashboard.tooltip_clean')}>
-              <Button variant="outlined" color="secondary" onClick={() => this.clean()}>
+              <Button variant="outlined" color="secondary" onClick={() => this.props.clean()}>
                 <DeleteSweepIcon />
               </Button>
             </Tooltip>
             <Tooltip title={t('Dashboard.tooltip_signout')}>
-              <Button variant="outlined" color="secondary" onClick={() => this.logout()}>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={() => {
+                  this.setState({
+                    redirect: true,
+                    isLoggedOut: true
+                  });
+                  this.props.logout();
+                }}>
                 <ExitToAppIcon />
               </Button>
             </Tooltip>
@@ -398,9 +161,9 @@ class Dashboard extends React.Component {
           dense
           subheader={
             <ListSubheader component="div">
-              {t('Dashboard.listsubheader_posts')} - {this.filteredPosts.length}
+              {t('Dashboard.listsubheader_posts')} - {this.props.posts.length}
               {
-                this.filteredPosts.length === 0 && 
+                this.props.posts.length === 0 && 
                 <Typography component="h6">
                   {t('Dashboard.listsubheader_text_noposts')}
                 </Typography>
@@ -409,8 +172,8 @@ class Dashboard extends React.Component {
           }
         >
           {
-            this.filteredPosts.map(post => 
-              <MyListItem
+            this.props.posts.map(post => 
+              <FileListItem
                 itemType='post'
                 name={post}
                 key={post}
@@ -425,9 +188,9 @@ class Dashboard extends React.Component {
           dense
           subheader={
             <ListSubheader component="div">
-              {t('Dashboard.listsubheader_pages')} - {this.filteredPages.length}
+              {t('Dashboard.listsubheader_pages')} - {this.props.pages.length}
               {
-                this.filteredPages.length === 0 && 
+                this.props.pages.length === 0 && 
                 <Typography component="h6">
                   {t('Dashboard.listsubheader_text_nopages')}
                 </Typography>
@@ -436,8 +199,8 @@ class Dashboard extends React.Component {
           }
         >
           {
-            this.filteredPages.map(page =>
-              <MyListItem
+            this.props.pages.map(page =>
+              <FileListItem
                 itemType='page'
                 name={page}
                 key={page}
@@ -491,19 +254,26 @@ class Dashboard extends React.Component {
             <Button onClick={() => {this.setOpenDialog(false)}}>
               {t('Dashboard.dialog_button_cancel')}
             </Button>
-            <Button color="secondary" onClick={() => {this.handleSubmit()}}>
+            <Button color="secondary" onClick={() => {
+              // newFile now returns a promise
+              this.props.newFile(this.state.newFileType, this.state.newFileName)
+                .then(() => {
+                  this.setOpenDialog(false);
+                })
+                .catch((err) => {
+                  // Do nothing, do not close the modal
+                });
+            }}>
               {t('Dashboard.dialog_new_button_ok')}
             </Button>
           </DialogActions>
         </Dialog>
         <Message
-          showMsg={this.state.showMsg}
-          msg={this.state.msg}
-          error={this.state.error}
+          ifShowMessage={this.props.ifShowMessage}
+          ifMessageIsError={this.props.ifMessageIsError}
+          messageCode={this.props.messageCode}
           handleClose={() => {
-            this.setState({
-              showMsg: false
-            });
+            this.props.dismissMessage();
           }}
         />
       </Container>
@@ -511,6 +281,6 @@ class Dashboard extends React.Component {
   }
 }
 
-const TranslatedDashboard = withTranslation()(Dashboard);
+const TranslatedDashboard = withTranslation()(connect(mapStateToProps, mapDispatchToProps)(Dashboard));
 
 export default TranslatedDashboard;

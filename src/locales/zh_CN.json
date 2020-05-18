@@ -48,9 +48,9 @@
     "dialog_delete_button": "删除"
   },
   "Message": {
-    "PLEASE_SIGN_IN": "请登录。",
-    "SIGNED_OUT": "已退出登录。",
-    "FAILED_TO_CONNECT_SERVER": "无法连接服务器。",
+    "AUTH_NOT_LOGGED_IN": "请登录。",
+    "AUTH_LOGGED_OUT": "已退出登录。",
+    "NETWORK_FAILED": "无法连接服务器。",
     "EMPTY_FILENAME": "文件名为空。",
     "NO_FILES_SELECTED": "请选择至少一个文件。",
     "TOO_MANY_FILES_SELECTED": "请选择不超过五个文件。",

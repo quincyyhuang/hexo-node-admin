@@ -9,7 +9,8 @@ import Editor from './Editor';
 // Router
 import {
   Switch,
-  Route
+  Route,
+  Redirect
 } from "react-router-dom";
 
 class App extends React.Component {
@@ -20,6 +21,9 @@ class App extends React.Component {
           <Route exact path={path.resolve(process.env.REACT_APP_ROOT, '!')} component={Dashboard} />
           <Route exact path={path.resolve(process.env.REACT_APP_ROOT, 'compose')} component={Editor} />
           <Route exact path={process.env.REACT_APP_ROOT} component={Login} />
+          <Route path={process.env.REACT_APP_ROOT}>
+            <Redirect to={process.env.REACT_APP_ROOT} />
+          </Route>
         </Switch>
       </div>
     );

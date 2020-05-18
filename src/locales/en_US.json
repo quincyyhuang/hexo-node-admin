@@ -48,9 +48,9 @@
     "dialog_delete_button": "DELETE"
   },
   "Message": {
-    "PLEASE_SIGN_IN": "Please sign in.",
-    "SIGNED_OUT": "Signed out.",
-    "FAILED_TO_CONNECT_SERVER": "Failed to connect server.",
+    "AUTH_NOT_LOGGED_IN": "Please sign in.",
+    "AUTH_LOGGED_OUT": "Signed out.",
+    "NETWORK_FAILED": "Failed to connect server.",
     "EMPTY_FILENAME": "Empty file name.",
     "NO_FILES_SELECTED": "Please selete at one file.",
     "TOO_MANY_FILES_SELECTED": "Please selete no more than five files.",

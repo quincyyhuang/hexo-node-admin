@@ -9,7 +9,7 @@ module.exports = (req, res, next) => {
     return res.status(401).json({'code': Status.AUTH_BAD_CREDENTIALS});
   try {
     const [schema, token] = header.split(' ');
-    if (schema != 'Bearer')
+    if (schema !== 'Bearer')
       return res.status(401).json({'code': Status.AUTH_BAD_HEADERS});
     else
     {

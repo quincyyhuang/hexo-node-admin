@@ -4,6 +4,9 @@ import './css/index.css';
 import App from './components/App';
 import * as serviceWorker from './serviceWorker';
 
+import { Provider } from 'react-redux'
+import store from './store'
+
 import './i18n';
 
 // Router
@@ -25,9 +28,11 @@ if (process.env.NODE_ENV === 'production')
 
 ReactDOM.render(
   <React.StrictMode>
-    <Router>
-      <App />
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <App />
+      </Router>
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );

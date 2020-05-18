@@ -20,10 +20,10 @@ router.post('/login', (req, res) => {
     return res.status(400).json({'code': Status.AUTH_MISSING_CREDENTIALS});
   }
   else {
-    if (config.admin.plain == true)
+    if (config.admin.plain === true)
     {
       // Plain text password
-      if (u == username && p == password) {
+      if (u === username && p === password) {
         // Authenticated
         jwt.sign(
           { u },
@@ -44,7 +44,7 @@ router.post('/login', (req, res) => {
     }
     else
     {
-      if (u == username)
+      if (u === username)
       {
         bcrypt.compare(p, password, (err, result) => {
           if (err)
